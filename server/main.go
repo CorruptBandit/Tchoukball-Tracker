@@ -10,9 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @title           Dashboard Creator API
+// @title           Tchoukball Tracker API
 // @version         1.0
-// @description     Dashboard creator API documentation.
+// @description     Tchoukball Tracker API documentation.
 
 // @host      localhost:8080
 // @BasePath  /
