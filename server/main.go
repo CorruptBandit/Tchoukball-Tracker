@@ -36,8 +36,8 @@ func main() {
 	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	handlers.RegisterGraphsRoutes(router.Group("/graphs"))
 
-	logger.Log.Info("Starting the server on port 8080")
-	if err := router.Run(":8080"); err != nil {
+	logger.Log.Info("Starting the server on port" + os.Getenv("SERVER_PORT"))
+	if err := router.Run(os.Getenv("SERVER_PORT")); err != nil {
 		logger.Log.Fatalf("Failed to start the server: %v", err)
 	}
 }
