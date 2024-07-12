@@ -1,0 +1,55 @@
+# Inspired from: https://github.com/BretFisher/node-docker-good-defaults/
+---
+x-common-settings: &common-settings
+  build:
+    context: .
+    dockerfile: Dockerfile
+    args:
+      NODE_ENV: ${NODE_ENV:-}
+      HOST_UID: ${HOST_UID:-}
+      HOST_GID: ${HOST_GID:-}
+  volumes:
+    - ./client:/opt/node_app/app/client
+    - ./server:/opt/node_app/app/server
+    # bind-mounting these two files in will let you add packages during development without rebuilding
+    # for example, to add bower to your app while developing, just install it inside the container
+    # and then nodemon will restart. Your changes will last until you "docker compose down" and will
+    # be saved on host for next build.
+    # remember to isntall from the parent directory to the code bind-mount:
+    # docker compose exec -w /opt/node_app node npm install --save bower
+    - ./package.json:/opt/node_app/package.json
+    - ./package-lock.json:/opt/node_app/package-lock.json
+    # this is a workaround to prevent host node_modules from accidently getting mounted in container
+    # in case you want to use node/npm both outside container for test/lint etc. and also inside container
+    # this will overwrite the default node_modules dir in container so it won't conflict with our
+    # /opt/node_app/node_modules location.
+    - notused:/opt/node_app/app/node_modules
+
+services:
+  app:
+    <<: *common-settings
+    init: true  # Handle signals correctly
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    environment:
+      - NODE_ENV
+
+  test:
+    <<: *common-settings
+    command: npm run test
+    environment:
+      - NODE_ENV=test
+    profiles:
+      - test
+
+  lint:
+    <<: *common-settings
+    command: npm run lint
+    environment:
+      - NODE_ENV=development
+    profiles:
+      - lint
+
+volumes:
+  notused:
