@@ -3,7 +3,7 @@
 x-common-settings: &common-settings
   build:
     context: .
-    dockerfile: Dockerfile
+    dockerfile: ./docker/Dockerfile.dev
     args:
       NODE_ENV: ${NODE_ENV:-}
       HOST_UID: ${HOST_UID:-}
@@ -30,26 +30,18 @@ services:
     <<: *common-settings
     init: true  # Handle signals correctly
     ports:
-      - "3000:3000"
-      - "3001:3001"
+      - "5173:5173"
+      - "8080:8080"
     environment:
       - NODE_ENV
 
-  test:
+  build:
     <<: *common-settings
-    command: npm run test
+    command: npm run build
     environment:
-      - NODE_ENV=test
+      - NODE_ENV=production
     profiles:
-      - test
-
-  lint:
-    <<: *common-settings
-    command: npm run lint
-    environment:
-      - NODE_ENV=development
-    profiles:
-      - lint
+      - build
 
 volumes:
   notused:
