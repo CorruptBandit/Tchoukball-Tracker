@@ -31,7 +31,6 @@ services:
     init: true  # Handle signals correctly
     ports:
       - "5173:5173"
-      - "8080:8080"
     environment:
       - NODE_ENV
 
@@ -42,6 +41,17 @@ services:
       - NODE_ENV=production
     profiles:
       - build
+  
+  backend:
+    build:
+      context: ./server
+      dockerfile: ../docker/Dockerfile.backend.prod
+    ports:
+      - "8080:8080" # Assuming the Go backend runs on port 4000, adjust as necessary
+    # volumes:
+    #   - ./data:/app/data # If your backend uses local data, adjust this accordingly
+    depends_on:
+      - app # Optional, if your backend needs to wait for the Node app to be up
 
 volumes:
   notused:
