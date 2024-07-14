@@ -54,7 +54,7 @@ services:
       - app # Optional, if your backend needs to wait for the Node app to be up
 
   mongodb:
-    image: mongo:7.0.5  # Uses official MongoDB image.
+    image: mongo:latest  # Uses official MongoDB image.
     hostname: tchoukballtracker.co.uk  # Sets the hostname for MongoDB container.
     ports:
       - "27017:27017"  # Exposes MongoDB's default port to the host.
@@ -62,14 +62,16 @@ services:
       - ./docker/tls/data/mongo/mongod.conf:/etc/mongod.conf
       - ./docker/tls/data/certbot/conf:/etc/letsencrypt
       - ./docker/tls/data/mongo/mongodb.pem:/etc/ssl/mongodb.pem
+      - ./docker/tls/data/mongo/ca.pem:/etc/ssl/ca.pem
     command: >  # Custom command to run MongoDB with SSL and periodically rotate certificates.
      /bin/sh -c '
       mongod --config /etc/mongod.conf & \
       while sleep 6h; do
       mongosh --eval "db.adminCommand({rotateCertificates: 1})" \
-      --host legsmuttsmove.co.uk \
+      --host tchoukballtracker.co.uk \
       --tls \
       --tlsCertificateKeyFile /etc/ssl/mongodb.pem;
+      --tlsCAFile /etc/ssl/ca.pem
      done;'
 
   nginx:
