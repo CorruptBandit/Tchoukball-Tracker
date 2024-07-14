@@ -1,0 +1,117 @@
+# Inspired from: https://github.com/BretFisher/node-docker-good-defaults/
+---
+x-common-settings: &common-settings
+  build:
+    context: .
+    dockerfile: ./docker/Dockerfile.dev
+    args:
+      NODE_ENV: ${NODE_ENV:-}
+      HOST_UID: ${HOST_UID:-}
+      HOST_GID: ${HOST_GID:-}
+  volumes:
+    - ./client:/opt/node_app/app/client
+    - ./server:/opt/node_app/app/server
+    # bind-mounting these two files in will let you add packages during development without rebuilding
+    # for example, to add bower to your app while developing, just install it inside the container
+    # and then nodemon will restart. Your changes will last until you "docker compose down" and will
+    # be saved on host for next build.
+    # remember to isntall from the parent directory to the code bind-mount:
+    # docker compose exec -w /opt/node_app node npm install --save bower
+    - ./package.json:/opt/node_app/package.json
+    - ./package-lock.json:/opt/node_app/package-lock.json
+    # this is a workaround to prevent host node_modules from accidently getting mounted in container
+    # in case you want to use node/npm both outside container for test/lint etc. and also inside container
+    # this will overwrite the default node_modules dir in container so it won't conflict with our
+    # /opt/node_app/node_modules location.
+    - notused:/opt/node_app/app/node_modules
+
+services:
+  frontend:
+    <<: *common-settings
+    init: true  # Handle signals correctly
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV
+    # profiles:
+    # - frontend
+  
+  backend:
+    build:
+      context: ./server
+      dockerfile: ../docker/Dockerfile.backend.prod
+    ports:
+      - "8080:8080"
+    volumes:  # Mounts configuration files and SSL certificates for MongoDB.
+      - ./docker/tls/data/mongo/mongodb.pem:/etc/ssl/mongodb.pem
+      - ./docker/tls/data/mongo/ca.pem:/etc/ssl/ca.pem
+      - .env:/app/.env
+    # depends_on:
+    #   - frontend # Optional, if your backend needs to wait for the Node app to be up
+    # profiles:
+    #   - backend
+
+
+  # build-frontend:
+  #   <<: *common-settings
+  #   command: npm run build
+  #   environment:
+  #     - NODE_ENV=production
+  #   profiles:
+  #     - build-frontend
+
+  mongodb:
+    image: mongo:latest  # Uses official MongoDB image.
+    hostname: tchoukballtracker.co.uk  # Sets the hostname for MongoDB container.
+    ports:
+      - "27017:27017"  # Exposes MongoDB's default port to the host.
+    volumes:  # Mounts configuration files and SSL certificates for MongoDB.
+      - ./docker/tls/data/mongo/mongod.conf:/etc/mongod.conf
+      - ./docker/tls/data/certbot/conf:/etc/letsencrypt
+      - ./docker/tls/data/mongo/mongodb.pem:/etc/ssl/mongodb.pem
+      - ./docker/tls/data/mongo/ca.pem:/etc/ssl/ca.pem
+    command: >  # Custom command to run MongoDB with SSL and periodically rotate certificates.
+     /bin/sh -c '
+      mongod --config /etc/mongod.conf & \
+      while sleep 6h; do
+      mongosh --eval "db.adminCommand({rotateCertificates: 1})" \
+      --host tchoukballtracker.co.uk \
+      --tls \
+      --tlsCertificateKeyFile /etc/ssl/mongodb.pem;
+      --tlsCAFile /etc/ssl/ca.pem
+     done;'
+
+  # nginx:
+  #   image: nginx:1.15-alpine  # Uses NGINX 1.15 on Alpine for a lightweight web server.
+  #   restart: unless-stopped  # Automatically restarts unless explicitly stopped.
+  #   volumes:  # Mounts configuration directories and SSL certificate locations.
+  #     - ./docker/tls/data/nginx:/etc/nginx/conf.d
+  #     - ./docker/tls/data/certbot/conf:/etc/letsencrypt
+  #     - ./docker/tls/data/certbot/www:/var/www/certbot
+  #   ports:
+  #     - "80:80"  # Maps HTTP port.
+  #     - "443:443"  # Maps HTTPS port.
+  #   command: >  # Custom command to reload NGINX configuration every 6 hours.
+  #     /bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'
+
+  # certbot:
+  #   image: certbot/certbot:v2.9.0  # Uses the official Certbot image for SSL certificate management.
+  #   restart: unless-stopped  # Automatically restarts unless explicitly stopped.
+  #   volumes:  # Mounts directories for configuration, webroot path, and SSL for MongoDB.
+  #     - ./docker/tls/data/certbot/conf:/etc/letsencrypt
+  #     - ./docker/tls/data/certbot/www:/var/www/certbot
+  #     - ./docker/tls/data/mongo/mongodb.pem:/etc/ssl/mongodb.pem
+  #   entrypoint: >  # Custom entrypoint to periodically renew SSL certificates and update MongoDB's SSL certificate.
+  #     /bin/sh -c '
+  #       trap "exit" TERM;
+  #       while :; do
+  #         certbot renew --deploy-hook "
+  #           cat /etc/letsencrypt/live/tchoukballtracker.co.uk/fullchain.pem \
+  #           /etc/letsencrypt/live/tchoukballtracker.co.uk/privkey.pem \
+  #           > /etc/ssl/mongodb.pem \
+  #           && chmod 644 /etc/ssl/mongodb.pem"
+  #         sleep 12h & wait $$!;
+  #       done;'
+
+volumes:
+  notused:
