@@ -67,18 +67,18 @@ func CreateGraph(c *gin.Context) {
 		return
 	}
 
-	if newGraph.Position == nil {
-		newGraph.Position = &models.Position{
-			Y: 100,
-		}
-	}
+	// if newGraph.Position == nil {
+	// 	newGraph.Position = &models.Position{
+	// 		Y: 100,
+	// 	}
+	// }
 
-	if newGraph.Size == nil {
-		newGraph.Size = &models.Size{
-			Width:  150,
-			Height: 100,
-		}
-	}
+	// if newGraph.Size == nil {
+	// 	newGraph.Size = &models.Size{
+	// 		Width:  150,
+	// 		Height: 100,
+	// 	}
+	// }
 
 	dbGraph, err := database.Insert(c.Request.Context(), newGraph.ToDatabase())
 	if err != nil {

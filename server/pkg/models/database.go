@@ -28,9 +28,3 @@ type DatabaseEntity interface {
 	GetName() string           // Get the MongoDB Object name
 	SetName(string)            // Set the MongoDB Object name
 }
-
-type ComponentDatabaseEntity interface {
-	DatabaseEntity
-	SetSize(*DBSize)
-	SetPosition(*DBPosition)
-}
