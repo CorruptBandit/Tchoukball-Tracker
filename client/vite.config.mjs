@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 
 dotenv.config();
 
-const CLIENT_PORT = Number(process.env.CLIENT_PORT) || 3000;
+const CLIENT_PORT = Number(process.env.CLIENT_PORT) || 5174;
 const SERVER_PORT = Number(process.env.SERVER_PORT) || 8080;
 
 // https://vitejs.dev/config/
