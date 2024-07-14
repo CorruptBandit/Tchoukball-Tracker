@@ -71,4 +71,4 @@ class BackendAPI {
   };
 }
 
-export const BackendAPI = new BackendAPI();
+export const backendAPI = new BackendAPI();
