@@ -54,23 +54,23 @@ services:
       - app # Optional, if your backend needs to wait for the Node app to be up
 
   mongodb:
-      image: mongo:7.0.5  # Uses official MongoDB image.
-      hostname: tchoukballtracker.co.uk  # Sets the hostname for MongoDB container.
-      ports:
-        - "27017:27017"  # Exposes MongoDB's default port to the host.
-      volumes:  # Mounts configuration files and SSL certificates for MongoDB.
-        - ./docker/tls/mongo/mongod.conf:/etc/mongod.conf
-        - ./data/tls/certbot/conf:/etc/letsencrypt
-        - ./data/tls/mongo/mongodb.pem:/etc/ssl/mongodb.pem
-      command: >  # Custom command to run MongoDB with SSL and periodically rotate certificates.
-        /bin/sh -c '
-        mongod --config /etc/mongod.conf & \
-        while sleep 6h; do
-          mongosh --eval "db.adminCommand({rotateCertificates: 1})" \
-          --host tchoukballtracker.co.uk \
-          --tls \
-          --tlsCertificateKeyFile /etc/ssl/mongodb.pem;
-        done;'
+    image: mongo:7.0.5  # Uses official MongoDB image.
+    hostname: tchoukballtracker.co.uk  # Sets the hostname for MongoDB container.
+    ports:
+      - "27017:27017"  # Exposes MongoDB's default port to the host.
+    volumes:  # Mounts configuration files and SSL certificates for MongoDB.
+      - ./docker/tls/data/mongo/mongod.conf:/etc/mongod.conf
+      - ./docker/tls/data/certbot/conf:/etc/letsencrypt
+      - ./docker/tls/data/mongo/mongodb.pem:/etc/ssl/mongodb.pem
+    command: >  # Custom command to run MongoDB with SSL and periodically rotate certificates.
+     /bin/sh -c '
+      mongod --config /etc/mongod.conf & \
+      while sleep 6h; do
+      mongosh --eval "db.adminCommand({rotateCertificates: 1})" \
+      --host legsmuttsmove.co.uk \
+      --tls \
+      --tlsCertificateKeyFile /etc/ssl/mongodb.pem;
+     done;'
 
   nginx:
     image: nginx:1.15-alpine  # Uses NGINX 1.15 on Alpine for a lightweight web server.
