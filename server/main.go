@@ -19,7 +19,7 @@ import (
 // @host      localhost:8080
 // @BasePath  /
 func main() {
-	err := godotenv.Load("../.env")
+	err := godotenv.Load("./.env")
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
@@ -27,10 +27,10 @@ func main() {
 	router := gin.Default()
 
 	connectionString := fmt.Sprintf(
-		"mongodb://%s:%s@%s/db?authSource=admin",
-		os.Getenv("MONGO_USERNAME"),
-		os.Getenv("MONGO_PASSWORD"),
-		os.Getenv("MONGO_HOST"))
+		"mongodb://%s/db?authSource=admin&ssl=true&tlsCertificateKeyFile=%s&tlsCAFile=%s",
+		os.Getenv("MONGO_HOST"),
+		os.Getenv("TLS_CERT_FILE"),
+		os.Getenv("TLS_CA_FILE"))
 
 	if err := database.Connect(connectionString, "DashboardCreator"); err != nil {
 		logger.Log.Fatalf("Failed to connect to database: %v", err)
