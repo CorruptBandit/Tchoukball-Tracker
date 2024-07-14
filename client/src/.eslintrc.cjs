@@ -1,7 +1,7 @@
 module.exports = {
     root: true,
     parserOptions: {
-      ecmaVersion: 2021,
+      ecmaVersion: 2022,
       sourceType: 'module',
       ecmaFeatures: {
         jsx: true,
@@ -14,7 +14,7 @@ module.exports = {
       },
     },
     env: {
-      es2021: true,
+      es2022: true,
     },
     extends: [
       'eslint:recommended',
@@ -27,7 +27,7 @@ module.exports = {
     },
     overrides: [
       {
-        files: ['client/src/**/*.{js,jsx}'],
+        files: ['./**/*.{js,jsx}'],
         env: {
           browser: true,
         },
@@ -41,7 +41,7 @@ module.exports = {
         },
       },
       {
-        files: ['server/**/*.{js,ts}'],
+        files: ['./**/*.{js,ts}'],
         env: {
           node: true,
         },

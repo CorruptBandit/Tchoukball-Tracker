@@ -9,21 +9,71 @@ import NewDashboardView from "./pages/NewDashboardView";
 import { CircularProgress, Typography } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchSettings, selectAllSettings } from "./store/slices/settingsSlice";
 import {
+  fetchDashboards,
   selectAllDashboards,
 } from "./store/slices/dashboardsSlice";
 import HomePage from "./pages/Homepage";
+import websocket from "./store/DashboardWS";
 
 function App() {
+  const dispatch = useDispatch();
+  const settings = useSelector(selectAllSettings);
   const settingsStatus = useSelector((state) => state.settings.status);
+  const settingsError = useSelector((state) => state.settings.error);
   const dashboards = useSelector(selectAllDashboards);
+  const dashboardsStatus = useSelector((state) => state.dashboards.status);
+  const dashboardsError = useSelector((state) => state.dashboards.error);
   const [darkMode, setDarkMode] = useState(false);
+  const [editMode, setEditMode] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const theme = createTheme({
     palette: {
       mode: darkMode ? "dark" : "light",
     },
   });
+
+  //Register websocket connection
+  useEffect(() => {
+    websocket.connect();
+
+    return () => {
+      websocket.disconnect()
+    };
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--background-color",
+      theme.palette.background.default
+    );
+  }, [theme]);
+
+  useEffect(() => {
+    if (settingsStatus === "idle") {
+      dispatch(fetchSettings());
+    }
+    if (dashboardsStatus === "idle") {
+      dispatch(fetchDashboards());
+    }
+    if (dashboardsStatus === "succeeded" && settingsStatus === "succeeded") {
+      setIsLoading(false);
+    }
+  }, [settingsStatus, dashboardsStatus, dispatch]);
+
+  useEffect(() => {
+    const darkModeSetting = settings.find((s) => s.name === "DarkMode");
+    if (darkModeSetting) {
+      setDarkMode(darkModeSetting.value === "true" ? true : false);
+    }
+
+    const editModeSetting = settings.find((s) => s.name === "EditMode");
+    if (editModeSetting) {
+      setEditMode(editModeSetting.value === "true" ? true : false);
+    }
+  }, [settings]);
 
   return isLoading ? (
     dashboardsError || settingsError ? (
