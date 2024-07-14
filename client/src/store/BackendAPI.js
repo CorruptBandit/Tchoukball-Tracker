@@ -1,4 +1,4 @@
-class API {
+class BackendAPI {
   fetch = async (uri, parameters = null) => {
       let uriVal =
         parameters !== null ? uri + "?" + new URLSearchParams(parameters) : uri;
@@ -71,4 +71,4 @@ class API {
   };
 }
 
-export const API = new API();
+export const BackendAPI = new BackendAPI();

@@ -3,7 +3,7 @@ import {
   createAsyncThunk,
   createSlice,
 } from "@reduxjs/toolkit";
-import { dashboardAPI } from "../API";
+import { backendAPI } from "../BackendAPI";
 
 // Creating separate adapters for each type
 const adapters = {
@@ -46,7 +46,7 @@ export const fetchComponents = createAsyncThunk(
 export const fetchComponentById = createAsyncThunk(
   "components/fetchComponentsById",
   async (payload) => {
-    const response = await dashboardAPI.fetch(
+    const response = await backendAPI.fetch(
       `/api/${payload.type}/${payload.id}`,
       null
     );
@@ -58,7 +58,7 @@ export const fetchComponentById = createAsyncThunk(
 export const deleteComponent = createAsyncThunk(
   "components/deleteComponent",
   async (payload) => {
-    const response = await dashboardAPI.delete(
+    const response = await backendAPI.delete(
       `/api/${payload.type}/${payload.id}`,
       null
     );
@@ -70,7 +70,7 @@ export const deleteComponent = createAsyncThunk(
 export const updateComponent = createAsyncThunk(
   "components/updateComponent",
   async (payload) => {
-    const response = await dashboardAPI.put(
+    const response = await backendAPI.put(
       `/api/${payload.type}/${payload.id}`,
       payload
     );
@@ -82,7 +82,7 @@ export const updateComponent = createAsyncThunk(
 export const updateSize = createAsyncThunk(
   "components/updateSize",
   async (payload) => {
-    const response = await dashboardAPI.put(
+    const response = await backendAPI.put(
       `/api/attributes/${payload.type}/${payload.id}/size`,
       {
         width: payload.size.width,
@@ -97,7 +97,7 @@ export const updateSize = createAsyncThunk(
 export const updatePosition = createAsyncThunk(
   "components/updatePosition",
   async (payload) => {
-    const response = await dashboardAPI.put(
+    const response = await backendAPI.put(
       `/api/attributes/${payload.type}/${payload.id}/position`,
       {
         x: payload.position.x,
@@ -112,7 +112,7 @@ export const updatePosition = createAsyncThunk(
 export const addIconToMap = createAsyncThunk(
   "components/addIconToMap",
   async (payload) => {
-    const response = await dashboardAPI.post(
+    const response = await backendAPI.post(
       `/api/maps/${payload.mapId}/icons`,
       payload
     );
@@ -123,7 +123,7 @@ export const addIconToMap = createAsyncThunk(
 export const removeIconFromMap = createAsyncThunk(
   "components/removeIconFromMap",
   async (payload) => {
-    const response = await dashboardAPI.delete(
+    const response = await backendAPI.delete(
       `/api/maps/${payload.mapId}/icons`,
       payload
     );
@@ -134,7 +134,7 @@ export const removeIconFromMap = createAsyncThunk(
 export const addNewComponent = createAsyncThunk(
   "components/addNewComponent",
   async (payload) => {
-    const response = await dashboardAPI.post(`/api/${payload.type}`, payload);
+    const response = await backendAPI.post(`/api/${payload.type}`, payload);
     const component = await response.json();
     return { type: payload.type, component: component };
   }
@@ -143,7 +143,7 @@ export const addNewComponent = createAsyncThunk(
 export const fetchComponentData = createAsyncThunk(
   "components/fetchComponentsData",
   async (payload) => {
-    const response = await dashboardAPI.fetch(
+    const response = await backendAPI.fetch(
       `/api/datasources/${payload.id}/data`,
       null
     );
