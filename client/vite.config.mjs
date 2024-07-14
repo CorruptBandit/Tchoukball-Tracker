@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 
 dotenv.config();
 
-const CLIENT_PORT = Number(process.env.CLIENT_PORT) || 5174;
+const CLIENT_PORT = Number(process.env.CLIENT_PORT) || 5173;
 const SERVER_PORT = Number(process.env.SERVER_PORT) || 8080;
 
 // https://vitejs.dev/config/
@@ -29,8 +29,9 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: `http://localhost:${SERVER_PORT}`,
+        target: `http://backend:${SERVER_PORT}`,
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
   },
