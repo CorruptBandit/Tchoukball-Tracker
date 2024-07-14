@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/Tchoukball-Tracker/pkg/database"
 	"github.com/Tchoukball-Tracker/pkg/handlers"
 	"github.com/Tchoukball-Tracker/pkg/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 // @title           Tchoukball Tracker API
@@ -17,6 +19,11 @@ import (
 // @host      localhost:8080
 // @BasePath  /
 func main() {
+	err := godotenv.Load("../.env")
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
 	router := gin.Default()
 
 	connectionString := fmt.Sprintf(
@@ -37,7 +44,7 @@ func main() {
 	handlers.RegisterGraphsRoutes(router.Group("/graphs"))
 
 	logger.Log.Info("Starting the server on port" + os.Getenv("SERVER_PORT"))
-	if err := router.Run(os.Getenv("SERVER_PORT")); err != nil {
+	if err := router.Run(":" + os.Getenv("SERVER_PORT")); err != nil {
 		logger.Log.Fatalf("Failed to start the server: %v", err)
 	}
 }
