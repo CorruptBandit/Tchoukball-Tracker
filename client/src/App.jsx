@@ -1,5 +1,7 @@
 import React from 'react';
 import ExcelUpload from './components/ExcelUpload'; // Adjust the path as necessary
+import SpreadsheetViewer from './components/SpreadsheetViewer'; // Adjust the path as necessary
+
 
 function App() {
   return (
@@ -8,7 +10,7 @@ function App() {
         <h1>Excel File Uploader</h1>
       </header>
       <main>
-        <ExcelUpload />
+        <SpreadsheetViewer />
       </main>
     </div>
   );
