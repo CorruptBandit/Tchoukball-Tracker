@@ -32,6 +32,9 @@
     animation: logo-spin infinite 20s linear;
   }
 }
+.row-separator {
+  border-bottom: 4px solid white; /* Adjust thickness and color as needed */
+}
 
 .card {
   padding: 2em;
