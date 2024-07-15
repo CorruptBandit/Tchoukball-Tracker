@@ -104,7 +104,7 @@ function SpreadsheetViewer() {
 
     
     return (
-        <div style={{ height: 160, width: '100%' }}>
+        <div style={{ width: '100vw', height: '100vh' }}>
             <DataGrid
                 columns={columns}
                 rows={rows}
