@@ -46,8 +46,8 @@ services:
       - ./docker/tls/data/mongo/mongodb.pem:/etc/ssl/mongodb.pem
       - ./docker/tls/data/mongo/ca.pem:/etc/ssl/ca.pem
       - .env:/app/.env
-    # depends_on:
-    #   - frontend # Optional, if your backend needs to wait for the Node app to be up
+    depends_on:
+      - mongodb # Optional, if your backend needs to wait for the Node app to be up
     # profiles:
     #   - backend
 

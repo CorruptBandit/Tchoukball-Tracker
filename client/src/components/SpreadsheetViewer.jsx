@@ -21,25 +21,44 @@ function SpreadsheetViewer() {
             .then(data => {
                 const nestedData = data.data;
                 if (nestedData && nestedData.length > 0) {
-                    const transformedData = nestedData.map(row => {
-                        const rowObj = {};
-                        row.forEach(({Key, Value}) => {
-                            // Create more meaningful column names here
-                            const columnName = Key.replace('__EMPTY_', '').replace(/_/g, ' ');
-                            rowObj[columnName] = Value;
-                        });
-                        return rowObj;
+                    const firstRow = nestedData[0];
+                    const rowObj = {};
+                    const keysForSorting = [];
+    
+                    Object.entries(firstRow).forEach(([key, value]) => {
+                        if (typeof value === 'object' && value !== null && 'Key' in value && 'Value' in value) {
+                            if (!(value.Key.startsWith('__EMPTY') && value.Value === 3)) {
+                                rowObj[value.Key] = value.Value;
+                                keysForSorting.push(value.Key); // Ensure all keys are included for sorting
+                            }
+                        }
                     });
 
-                    // Determine columns from the first row of transformed data
-                    const cols = Object.keys(transformedData[0]).map(key => ({
+                    console.log(keysForSorting)
+    
+                    // Sort the keys, ensuring custom order for "End" and "Name / number"
+                    keysForSorting.sort((a, b) => {
+                        if (a === 'End') return -1;
+                        if (b === 'End') return 1;
+                        if (a === 'Name / number') return -1;
+                        if (b === 'Name / number') return 1;
+                        return a.localeCompare(b);
+                    });
+    
+                    const sortedRowObj = {};
+                    keysForSorting.forEach(key => {
+                        sortedRowObj[key] = rowObj[key];
+                    });
+    
+                    const columns = keysForSorting.map(key => ({
                         key: key,
-                        name: key, // Potentially adjust naming here for better labels
+                        name: key.replace('__EMPTY_', 'Column '), // Custom names
                         resizable: true,
                         sortable: true
                     }));
-                    setColumns(cols);
-                    setRows(transformedData);
+    
+                    setColumns(columns);
+                    setRows([sortedRowObj]);
                 } else {
                     setError('Data array is empty');
                 }
@@ -54,22 +73,23 @@ function SpreadsheetViewer() {
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
-    console.log(columns)
-    console.log("hi")
+    console.log("First row: ", rows);
+    console.log("Columns: ", columns);
+    
 
     return (
-        <div>
-            <DataGrid
-                columns={columns}
-                rows={rows}
-                defaultColumnOptions={{
-                    sortable: true,
-                    resizable: true,
-                    width: 160
-                }}
-                className="fill-grid"
-            />
-        </div>
+        <div style={{ height: 600, width: '100%' }}>
+        <DataGrid
+            columns={columns}
+            rows={rows}
+            defaultColumnOptions={{
+                sortable: true,
+                resizable: true,
+                width: 160
+            }}
+            className="fill-grid"
+        />
+    </div>
     );
 }
 
