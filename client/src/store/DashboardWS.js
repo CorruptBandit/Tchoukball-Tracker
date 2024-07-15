@@ -23,7 +23,7 @@ class DashboardWS {
 
     connect() {
         if (!this.isConnected()) {
-            this.socket = new WebSocket(`ws://localhost:8080/ws`);
+            this.socket = new WebSocket(`ws://backend:8080/ws`);
             this.socket.onopen = () => console.log("WebSocket connected");
             this.socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
