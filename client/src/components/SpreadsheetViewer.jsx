@@ -2,7 +2,9 @@
 
 import { dark } from '@mui/material/styles/createPalette';
 import React, { useState, useEffect } from 'react';
+import 'react-data-grid/lib/styles.css';
 import DataGrid from 'react-data-grid';
+
 
 function SpreadsheetViewer() {
     const [rows, setRows] = useState([]);
@@ -77,6 +79,19 @@ function SpreadsheetViewer() {
     console.log("Columns: ", columns);
     
 
+    // return (
+    //         <DataGrid
+    //             columns={[
+    //                 { key: 'id', name: 'ID' },
+    //                 { key: 'title', name: 'Title' }
+    //             ]}
+    //             rows={[
+    //                 { id: 1, title: 'Test Row 1' },
+    //                 { id: 2, title: 'Test Row 2' }
+    //             ]}
+    //         />
+    // );
+    
     return (
         <div style={{ height: 600, width: '100%' }}>
         <DataGrid
