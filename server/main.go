@@ -41,6 +41,7 @@ func main() {
 	// })
 
 	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	handlers.RegisterSpreadsheetRoutes(router.Group("/spreadsheets"))
 	handlers.RegisterGraphsRoutes(router.Group("/graphs"))
 
 	logger.Log.Info("Starting the server on port" + os.Getenv("SERVER_PORT"))

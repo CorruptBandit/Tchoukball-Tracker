@@ -25,6 +25,6 @@ type DatabaseEntity interface {
 	New() DatabaseEntity       // Method to instantiate a new object of the same type.
 	GetID() primitive.ObjectID // Retrieves the MongoDB ObjectID.
 	SetID(primitive.ObjectID)  // Sets the MongoDB ObjectID.
-	GetName() string           // Get the MongoDB Object name
-	SetName(string)            // Set the MongoDB Object name
+	// GetName() string           // Get the MongoDB Object name
+	// SetName(string)            // Set the MongoDB Object name
 }
