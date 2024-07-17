@@ -1,16 +1,15 @@
-// src/SpreadsheetViewer.jsx
-
-import { dark } from '@mui/material/styles/createPalette';
-import React, { useState, useEffect } from 'react';
-import 'react-data-grid/lib/styles.css';
-import DataGrid from 'react-data-grid';
-
+import { useState, useEffect } from 'react';
+import { DataGrid } from '@mui/x-data-grid';
+import { Button, Box } from '@mui/material';
 
 function SpreadsheetViewer() {
     const [rows, setRows] = useState([]);
     const [columns, setColumns] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedRow, setSelectedRow] = useState(null);
+    const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+    const [selectionModel, setSelectionModel] = useState([]);
 
     useEffect(() => {
         fetch('/api/spreadsheets/6695724dac0d02421a17b287')
@@ -23,61 +22,7 @@ function SpreadsheetViewer() {
             .then(data => {
                 const nestedData = data.data;
                 if (nestedData && nestedData.length > 0) {
-                    let maxEmptyNumber = 0;
-                    const rows = nestedData.map((dict) => {
-                        const rowObj = {};
-                        Object.entries(dict).forEach(([key, value]) => {
-                            if (typeof value === 'object' && value !== null && 'Key' in value && 'Value' in value) {
-                                const keyMatch = value.Key.match(/__EMPTY_(\d+)/);
-                                if (keyMatch) {
-                                    const emptyNumber = parseInt(keyMatch[1], 10);
-                                    if (emptyNumber >= 24) {  // Only consider __EMPTY numbers 24 and above
-                                        maxEmptyNumber = Math.max(maxEmptyNumber, emptyNumber);
-                                        rowObj[value.Key] = value.Value;
-                                    }
-                                } else if (!(value.Key.startsWith('__EMPTY') && value.Value === 3)) {
-                                    rowObj[value.Key] = value.Value;
-                                }
-                            }
-                        });
-                        return rowObj;
-                    });
-    
-                    const columns = [];
-                    // Generate columns starting from __EMPTY_24 to the highest found
-                    for (let i = 24; i <= maxEmptyNumber; i++) {
-                        columns.push({
-                            key: `__EMPTY_${i}`,
-                            name: ``,
-                            resizable: true,
-                            sortable: true
-                        });
-                    }
-    
-                    // Include other key columns that are not EMPTY
-                    const additionalKeys = ['End', 'Name / number'];
-                    additionalKeys.forEach(key => {
-                        if (!columns.some(column => column.key === key)) {
-                            columns.push({
-                                key: key,
-                                name: key,
-                                resizable: true,
-                                sortable: true
-                            });
-                        }
-                    });
-    
-                    // Sort columns based on specific criteria
-                    columns.sort((a, b) => {
-                        if (a.key === 'End') return -1;
-                        if (b.key === 'End') return 1;
-                        if (a.key === 'Name / number') return -1;
-                        if (b.key === 'Name / number') return 1;
-                        return a.key.localeCompare(b.key);
-                    });
-    
-                    setColumns(columns);
-                    setRows(rows);  // Set the full array of row objects
+                    processAndSetData(nestedData);
                 } else {
                     setError('Data array is empty');
                 }
@@ -88,35 +33,93 @@ function SpreadsheetViewer() {
                 setLoading(false);
             });
     }, []);
-    // return (
-    //         <DataGrid
-    //             columns={[
-    //                 { key: 'id', name: 'ID' },
-    //                 { key: 'title', name: 'Title' }
-    //             ]}
-    //             rows={[
-    //                 { id: 1, title: 'Test Row 1' },
-    //                 { id: 2, title: 'Test Row 2' }
-    //             ]}
-    //         />
-    // );
-    
 
-    
+    const processAndSetData = (nestedData) => {
+        let maxEmptyNumber = 0;
+        const processedRows = nestedData.map((dict, index) => {
+            const rowObj = { id: index }; // Assign a unique id for each row
+            Object.entries(dict).forEach(([key, value]) => {
+                if (typeof value === 'object' && value !== null && 'Key' in value && 'Value' in value) {
+                    const keyMatch = value.Key.match(/__EMPTY_(\d+)/);
+                    if (keyMatch) {
+                        const emptyNumber = parseInt(keyMatch[1], 10);
+                        if (emptyNumber >= 24) {  // Only consider __EMPTY numbers 24 and above
+                            maxEmptyNumber = Math.max(maxEmptyNumber, emptyNumber);
+                            rowObj[value.Key] = value.Value;
+                        }
+                    } else {
+                        rowObj[value.Key] = value.Value;  // This ensures all keys are added, not just __EMPTY
+                    }
+                }
+            });
+            return rowObj;
+        });
+
+        const processedColumns = [
+            { field: 'End', headerName: 'End', width: 150, editable: true },
+            { field: 'Name / number', headerName: 'Name / Number', width: 150, editable: true } // Predefined columns
+        ];
+        for (let i = 24; i <= maxEmptyNumber; i++) {
+            processedColumns.push({ field: `__EMPTY_${i}`, headerName: `Column ${i}`, width: 150, editable: true });
+        }
+
+        setColumns(processedColumns);
+        setRows(processedRows);
+    };
+
+    const handleRowSelection = (newSelectionModel) => {
+        setSelectionModel(newSelectionModel);
+        if (newSelectionModel.length > 0) {
+            const rowIndex = rows.findIndex(row => row.id.toString() === newSelectionModel[0].toString());
+            setSelectedRow(rows[rowIndex]);
+            setSelectedRowIndex(rowIndex);
+        } else {
+            setSelectedRow(null);
+            setSelectedRowIndex(null);
+        }
+    };
+
+    const handleActionClick = (action) => {
+        if (selectedRow && selectedRowIndex != null) {
+            const updatedRows = [...rows];
+            const nextEditableColumnIndex = Object.keys(updatedRows[selectedRowIndex]).findIndex(
+                key => key.startsWith('__EMPTY_') && !updatedRows[selectedRowIndex][key]
+            );
+            if (nextEditableColumnIndex !== -1) {
+                const keyToUpdate = Object.keys(updatedRows[selectedRowIndex])[nextEditableColumnIndex];
+                updatedRows[selectedRowIndex][keyToUpdate] = action;
+                setRows(updatedRows);
+            }
+        }
+    };
+
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>Error: {error}</p>;
+
     return (
-        <div style={{ width: '100vw', height: '100vh' }}>
-            <DataGrid
-                columns={columns}
-                rows={rows}
-                defaultColumnOptions={{
-                    sortable: true,
-                    resizable: true,
-                    width: 160
-                }}
-                // rowClass={(row) => row.idx % 2 === 0 ? 'row-separator' : ''} fix this to add thick border between persons
-                className="fill-grid"
-            />
-        </div>
+        <Box sx={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ height: '50%', width: '100%' }}>
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    pageSize={10}
+                    selectionModel={selectionModel}
+                    onSelectionModelChange={handleRowSelection}
+                />
+            </Box>
+            {selectedRow && (
+                <Box sx={{ padding: 2 }}>
+                    <h3>Action: {selectedRow['Name / number']}</h3>
+                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                        {['Point', 'Caught', 'Short', 'Mistake', '1st', '2nd', 'Drop', 'Gap'].map((action) => (
+                            <Button key={action} variant="contained" color="primary" onClick={() => handleActionClick(action)}>
+                                {action}
+                            </Button>
+                        ))}
+                    </Box>
+                </Box>
+            )}
+        </Box>
     );
 }
 
