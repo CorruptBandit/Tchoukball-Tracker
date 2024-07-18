@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { DataGrid } from '@mui/x-data-grid';
-import { Button, Box } from '@mui/material';
+import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
+import { Button, Box, Typography } from '@mui/material';
 
 function SpreadsheetViewer() {
+    const apiRef = useGridApiRef();
     const [rows, setRows] = React.useState([]);
     const [columns, setColumns] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
@@ -10,6 +11,7 @@ function SpreadsheetViewer() {
     const [selectedRow, setSelectedRow] = React.useState(null);
     const [selectedRowIndex, setSelectedRowIndex] = React.useState(null);
     const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
+    const [nextEditableIndex, setNextEditableIndex] = React.useState(24); // Start with __EMPTY_24
 
     React.useEffect(() => {
         fetch('/api/spreadsheets/6695724dac0d02421a17b287')
@@ -76,6 +78,7 @@ function SpreadsheetViewer() {
             console.log('Selected Row:', rows[rowIndex]);
             setSelectedRow(rows[rowIndex]);
             setSelectedRowIndex(rowIndex);
+            setNextEditableIndex(24); // Reset to start with __EMPTY_24
         } else {
             setSelectedRow(null);
             setSelectedRowIndex(null);
@@ -84,15 +87,18 @@ function SpreadsheetViewer() {
 
     const handleActionClick = (action) => {
         if (selectedRow && selectedRowIndex != null) {
+            const updatedRow = { ...rows[selectedRowIndex] };
+            const keyToUpdate = `__EMPTY_${nextEditableIndex}`;
+            console.log('Updating key:', keyToUpdate, 'with action:', action);
+            updatedRow[keyToUpdate] = action;
+            apiRef.current.updateRows([updatedRow]);
             const updatedRows = [...rows];
-            const nextEditableColumnIndex = Object.keys(updatedRows[selectedRowIndex]).findIndex(
-                key => key.startsWith('__EMPTY_') && !updatedRows[selectedRowIndex][key]
-            );
-            if (nextEditableColumnIndex !== -1) {
-                const keyToUpdate = Object.keys(updatedRows[selectedRowIndex])[nextEditableColumnIndex];
-                updatedRows[selectedRowIndex][keyToUpdate] = action;
-                setRows(updatedRows);
-            }
+            updatedRows[selectedRowIndex] = updatedRow;
+            setRows(updatedRows);
+            setSelectedRow(updatedRow);
+            setNextEditableIndex(prevIndex => prevIndex + 1); // Increment for the next action
+        } else {
+            console.log('No row selected');
         }
     };
 
@@ -103,6 +109,7 @@ function SpreadsheetViewer() {
         <Box sx={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ height: '50%', width: '100%' }}>
                 <DataGrid
+                    apiRef={apiRef}
                     rows={rows}
                     columns={columns}
                     pageSize={10}
@@ -113,7 +120,9 @@ function SpreadsheetViewer() {
             {selectedRow && (
                 <Box sx={{ padding: 2 }}>
                     {console.log('Rendering selected row:', selectedRow)}
-                    <h3 style={{ color: 'black' }}>Action for: {selectedRow['Name / number'] || 'No name available'}</h3>
+                    <Typography variant="h3" sx={{ color: 'black' }}>
+                        Action for: {selectedRow['Name / number'] || 'No name available'}
+                    </Typography>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                         {['Point', 'Caught', 'Short', 'Mistake', '1st', '2nd', 'Drop', 'Gap'].map((action) => (
                             <Button key={action} variant="contained" color="primary" onClick={() => handleActionClick(action)}>
