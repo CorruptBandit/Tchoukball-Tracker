@@ -11,7 +11,8 @@ function SpreadsheetViewer() {
     const [selectedRow, setSelectedRow] = React.useState(null);
     const [selectedRowIndex, setSelectedRowIndex] = React.useState(null);
     const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
-    const [nextEditableIndex, setNextEditableIndex] = React.useState(24); // Start with __EMPTY_24
+    const [nextEditableIndexTop, setNextEditableIndexTop] = React.useState(24); // Start with __EMPTY_24 for top row
+    const [nextEditableIndexBottom, setNextEditableIndexBottom] = React.useState(24); // Start with __EMPTY_24 for bottom row
 
     React.useEffect(() => {
         fetch('/api/spreadsheets/6695724dac0d02421a17b287')
@@ -40,7 +41,7 @@ function SpreadsheetViewer() {
         let maxEmptyNumber = 0;
         const processedRows = nestedData.map((dict, index) => {
             const rowObj = { id: index }; // Assign a unique id for each row
-            Object.entries(dict).forEach(([key, value]) => {
+            Object.entries(dict).forEach(([_key, value]) => {
                 if (typeof value === 'object' && value !== null && 'Key' in value && 'Value' in value) {
                     const keyMatch = value.Key.match(/__EMPTY_(\d+)/);
                     if (keyMatch) {
@@ -62,7 +63,7 @@ function SpreadsheetViewer() {
             { field: 'Name / number', headerName: 'Name / Number', width: 150, editable: true } // Predefined columns
         ];
         for (let i = 24; i <= maxEmptyNumber; i++) {
-            processedColumns.push({ field: `__EMPTY_${i}`, headerName: `Column ${i}`, width: 150, editable: true });
+            processedColumns.push({ field: `__EMPTY_${i}`, headerName: ``, width: 150, editable: true });
         }
 
         setColumns(processedColumns);
@@ -78,7 +79,8 @@ function SpreadsheetViewer() {
             console.log('Selected Row:', rows[rowIndex]);
             setSelectedRow(rows[rowIndex]);
             setSelectedRowIndex(rowIndex);
-            setNextEditableIndex(24); // Reset to start with __EMPTY_24
+            setNextEditableIndexTop(24); // Reset to start with __EMPTY_24 for top row
+            setNextEditableIndexBottom(24); // Reset to start with __EMPTY_24 for bottom row
         } else {
             setSelectedRow(null);
             setSelectedRowIndex(null);
@@ -87,19 +89,40 @@ function SpreadsheetViewer() {
 
     const handleActionClick = (action) => {
         if (selectedRow && selectedRowIndex != null) {
-            const updatedRow = { ...rows[selectedRowIndex] };
+            const isBottomAction = ['1st', '2nd', 'Drop', 'Gap'].includes(action);
+            const targetRowIndex = isBottomAction ? selectedRowIndex + 1 : selectedRowIndex;
+            const nextEditableIndex = isBottomAction ? nextEditableIndexBottom : nextEditableIndexTop;
+            const updatedRow = { ...rows[targetRowIndex] };
             const keyToUpdate = `__EMPTY_${nextEditableIndex}`;
-            console.log('Updating key:', keyToUpdate, 'with action:', action);
+            
+            console.log(`Updating ${isBottomAction ? 'bottom' : 'top'} row, key: ${keyToUpdate}, with action: ${action}`);
             updatedRow[keyToUpdate] = action;
             apiRef.current.updateRows([updatedRow]);
             const updatedRows = [...rows];
-            updatedRows[selectedRowIndex] = updatedRow;
+            updatedRows[targetRowIndex] = updatedRow;
             setRows(updatedRows);
-            setSelectedRow(updatedRow);
-            setNextEditableIndex(prevIndex => prevIndex + 1); // Increment for the next action
+            
+            if (isBottomAction) {
+                setNextEditableIndexBottom(prevIndex => prevIndex + 1); // Increment for the next bottom action
+            } else {
+                setNextEditableIndexTop(prevIndex => prevIndex + 1); // Increment for the next top action
+            }
+
+            // If the bottom row doesn't exist, create a new one
+            if (isBottomAction && !rows[targetRowIndex]) {
+                const newBottomRow = { id: targetRowIndex };
+                setRows(prevRows => [...prevRows, newBottomRow]);
+            }
         } else {
             console.log('No row selected');
         }
+    };
+
+    const rowClassName = (params) => {
+        if ((params.indexRelativeToCurrentPage + 1) % 2 === 0) {
+            return 'thick-bottom-border';
+        }
+        return '';
     };
 
     if (loading) return <p>Loading...</p>;
@@ -115,6 +138,15 @@ function SpreadsheetViewer() {
                     pageSize={10}
                     onRowSelectionModelChange={handleRowSelection}
                     rowSelectionModel={rowSelectionModel}
+                    getRowClassName={rowClassName}
+                    sx={{
+                        '& .thick-bottom-border': {
+                            borderBottom: '4px solid black',
+                        },
+                        '& .MuiDataGrid-columnHeaders': {
+                            fontWeight: 'bold',
+                        },
+                    }}
                 />
             </Box>
             {selectedRow && (
