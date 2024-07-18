@@ -87,6 +87,33 @@ function SpreadsheetViewer() {
         }
     };
 
+    const handleCellEditCommit = React.useCallback(async (params) => {
+        console.log("yay")
+        const { id, field, value } = params;
+        const updatedRow = { ...rows.find(row => row.id === id), [field]: value };
+
+        console.log(field, value)
+
+        // Update the row locally
+        setRows(prevRows => prevRows.map(row => (row.id === id ? updatedRow : row)));
+
+        // Make an API call to update the backend
+        try {
+            const response = await fetch(`/api/spreadsheets/6695724dac0d02421a17b287`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ [field]: value }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to update the row');
+            }
+        } catch (error) {
+            console.error('Error updating row:', error);
+        }
+    }, [rows]);
+
     const handleActionClick = (action) => {
         if (selectedRow && selectedRowIndex != null) {
             const isBottomAction = ['1st', '2nd', 'Drop', 'Gap'].includes(action);
@@ -139,6 +166,7 @@ function SpreadsheetViewer() {
                     onRowSelectionModelChange={handleRowSelection}
                     rowSelectionModel={rowSelectionModel}
                     getRowClassName={rowClassName}
+                    onCellEditStop={handleCellEditCommit}
                     sx={{
                         '& .thick-bottom-border': {
                             borderBottom: '4px solid black',
