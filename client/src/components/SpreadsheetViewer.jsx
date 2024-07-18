@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react';
+import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Button, Box } from '@mui/material';
 
 function SpreadsheetViewer() {
-    const [rows, setRows] = useState([]);
-    const [columns, setColumns] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [selectedRow, setSelectedRow] = useState(null);
-    const [selectedRowIndex, setSelectedRowIndex] = useState(null);
-    const [selectionModel, setSelectionModel] = useState([]);
+    const [rows, setRows] = React.useState([]);
+    const [columns, setColumns] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
+    const [error, setError] = React.useState(null);
+    const [selectedRow, setSelectedRow] = React.useState(null);
+    const [selectedRowIndex, setSelectedRowIndex] = React.useState(null);
+    const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
 
-    useEffect(() => {
+    React.useEffect(() => {
         fetch('/api/spreadsheets/6695724dac0d02421a17b287')
             .then(response => {
                 if (!response.ok) {
@@ -67,10 +67,13 @@ function SpreadsheetViewer() {
         setRows(processedRows);
     };
 
-    const handleRowSelection = (newSelectionModel) => {
-        setSelectionModel(newSelectionModel);
-        if (newSelectionModel.length > 0) {
-            const rowIndex = rows.findIndex(row => row.id.toString() === newSelectionModel[0].toString());
+    const handleRowSelection = (newRowSelectionModel) => {
+        setRowSelectionModel(newRowSelectionModel);
+        console.log('New Row Selection Model:', newRowSelectionModel);
+        if (newRowSelectionModel.length > 0) {
+            const rowIndex = rows.findIndex(row => row.id.toString() === newRowSelectionModel[0].toString());
+            console.log('Selected Row Index:', rowIndex);
+            console.log('Selected Row:', rows[rowIndex]);
             setSelectedRow(rows[rowIndex]);
             setSelectedRowIndex(rowIndex);
         } else {
@@ -103,13 +106,14 @@ function SpreadsheetViewer() {
                     rows={rows}
                     columns={columns}
                     pageSize={10}
-                    selectionModel={selectionModel}
-                    onSelectionModelChange={handleRowSelection}
+                    onRowSelectionModelChange={handleRowSelection}
+                    rowSelectionModel={rowSelectionModel}
                 />
             </Box>
             {selectedRow && (
                 <Box sx={{ padding: 2 }}>
-                    <h3>Action: {selectedRow['Name / number']}</h3>
+                    {console.log('Rendering selected row:', selectedRow)}
+                    <h3 style={{ color: 'black' }}>Action for: {selectedRow['Name / number'] || 'No name available'}</h3>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                         {['Point', 'Caught', 'Short', 'Mistake', '1st', '2nd', 'Drop', 'Gap'].map((action) => (
                             <Button key={action} variant="contained" color="primary" onClick={() => handleActionClick(action)}>
