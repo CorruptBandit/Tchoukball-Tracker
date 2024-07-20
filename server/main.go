@@ -21,7 +21,11 @@ import (
 func main() {
 	err := godotenv.Load("./.env")
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		// If it fails, try to load .env file from the parent directory
+		err = godotenv.Load("./../.env")
+		if err != nil {
+			log.Fatalf("Error loading .env file")
+		}
 	}
 
 	router := gin.Default()
