@@ -15,7 +15,7 @@ function SpreadsheetViewer() {
     const [nextEditableIndexBottom, setNextEditableIndexBottom] = React.useState(24); // Start with __EMPTY_24 for bottom row
 
     React.useEffect(() => {
-        fetch('/api/spreadsheets/6695724dac0d02421a17b287')
+        fetch('/api/spreadsheets')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');

@@ -1,17 +1,18 @@
-import React from 'react';
-import ExcelUpload from './components/ExcelUpload'; // Adjust the path as necessary
-import SpreadsheetViewer from './components/SpreadsheetViewer'; // Adjust the path as necessary
+import { Route, Routes } from "react-router-dom";
+import ExcelUpload from './components/ExcelUpload';
+import SpreadsheetViewer from './components/SpreadsheetViewer';
+import TrackerView from "./pages/TrackerView";
+import PageNotFound from "./pages/PageNotFound";
 
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-      </header>
-      <main>
-        <SpreadsheetViewer />
-      </main>
-    </div>
+    <Routes>
+        <Route path="/" element={<TrackerView id={"muppet"} />} />
+        <Route path="/upload" element={<ExcelUpload/>} />
+        <Route path="/view" element={<SpreadsheetViewer/>} />
+        <Route path="/*" element={<PageNotFound/>} />
+    </Routes>
   );
 }
 

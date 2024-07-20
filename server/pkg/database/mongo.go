@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"time"
 
@@ -23,7 +24,10 @@ func NewMongoDatabase() *MongoDB {
 }
 
 func (mdb *MongoDB) Connect(connection string, dbName string) error {
-	clientOptions := options.Client().ApplyURI(connection)
+	tlsConfig := tls.Config{
+		InsecureSkipVerify: true,
+	}
+	clientOptions := options.Client().ApplyURI(connection).SetTLSConfig(&tlsConfig)
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 

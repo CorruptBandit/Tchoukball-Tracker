@@ -18,9 +18,20 @@ definitions:
       message:
         type: string
     type: object
+  models.Match:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      thirds:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
   models.Spreadsheet:
     properties:
-      datasource:
+      data:
         items: {}
         type: array
       id:
@@ -168,6 +179,139 @@ paths:
       summary: Update a graph
       tags:
       - graphs
+  /matches:
+    get:
+      consumes:
+      - application/json
+      description: get all matches from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of matches
+          schema:
+            items:
+              $ref: '#/definitions/models.Match'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Retrieve all matches
+      tags:
+      - matches
+    post:
+      consumes:
+      - application/json
+      description: create a new match with the provided details
+      parameters:
+      - description: Match Info
+        in: body
+        name: match
+        required: true
+        schema:
+          $ref: '#/definitions/models.Match'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Match'
+        "400":
+          description: Bad request - invalid JSON
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "422":
+          description: Bad request - missing element
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Create a new match
+      tags:
+      - matches
+  /matches/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a match by ID
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted
+          schema:
+            type: string
+        "404":
+          description: Match not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Delete a match
+      tags:
+      - matches
+    get:
+      consumes:
+      - application/json
+      description: get match by ID from the database
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Match retrieved
+          schema:
+            $ref: '#/definitions/models.Match'
+        "404":
+          description: Match not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Retrieve a match by ID
+      tags:
+      - matches
+    put:
+      consumes:
+      - application/json
+      description: update details of a match by ID
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Match info
+        in: body
+        name: match
+        required: true
+        schema:
+          $ref: '#/definitions/models.Match'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Match updated
+          schema:
+            $ref: '#/definitions/models.Match'
+        "404":
+          description: Match not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Update a match
+      tags:
+      - matches
   /spreadsheets:
     get:
       consumes:

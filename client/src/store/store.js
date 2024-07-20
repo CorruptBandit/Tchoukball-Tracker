@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
-import dashboardsReducer from './slices/dashboardsSlice'
+import spreadsheetsReducer from './slices/spreadsheetsSlice'
 
 export default configureStore({
   reducer: {
-    dashboards: dashboardsReducer,
+    spreadsheets: spreadsheetsReducer,
   }
 });

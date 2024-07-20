@@ -12,15 +12,8 @@ var (
 	database models.Database
 )
 
-func Setup(mock bool) {
-	if mock {
-		database = NewMockDB()
-	} else {
-		database = NewMongoDatabase()
-	}
-}
-
 func Connect(connection string, dbName string) error {
+	database = NewMongoDatabase()
 	return database.Connect(connection, dbName)
 }
 

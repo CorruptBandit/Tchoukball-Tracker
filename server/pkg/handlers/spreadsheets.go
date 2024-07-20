@@ -12,11 +12,11 @@ import (
 
 // RegisterRoutes registers spreadsheet-related routes in the provided router group.
 func RegisterSpreadsheetsRoutes(router *gin.RouterGroup) {
-	router.GET("", GetAllSpreadsheets)
-	router.POST("", CreateSpreadsheet)
-	router.GET("/:id", GetSpreadsheetByID)
-	router.PUT("/:id", UpdateSpreadsheet)
-	router.DELETE("/:id", DeleteSpreadsheet)
+	router.GET("", getAllSpreadsheets)
+	router.POST("", createSpreadsheet)
+	router.GET("/:id", getSpreadsheetByID)
+	router.PUT("/:id", updateSpreadsheet)
+	router.DELETE("/:id", deleteSpreadsheet)
 }
 
 // GetAllSpreadsheets retrieves all spreadsheets.
@@ -28,7 +28,7 @@ func RegisterSpreadsheetsRoutes(router *gin.RouterGroup) {
 // @Success 200 {array} models.Spreadsheet "List of spreadsheets"
 // @Failure 500 {object} models.HTTPError "Internal server error"
 // @Router /spreadsheets [get]
-func GetAllSpreadsheets(c *gin.Context) {
+func getAllSpreadsheets(c *gin.Context) {
 	dbSpreadsheets, err := database.FindAll(c.Request.Context(), &models.Spreadsheet{})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.HTTPError{Code: http.StatusInternalServerError, Message: err.Error()})
@@ -49,7 +49,7 @@ func GetAllSpreadsheets(c *gin.Context) {
 // @Failure 422 {object} models.HTTPError "Bad request - missing element"
 // @Failure 500 {object} models.HTTPError "Internal server error"
 // @Router /spreadsheets [post]
-func CreateSpreadsheet(c *gin.Context) {
+func createSpreadsheet(c *gin.Context) {
 	var newSpreadsheet *models.Spreadsheet
 	if err := c.ShouldBindJSON(&newSpreadsheet); err != nil {
 		c.JSON(http.StatusBadRequest, models.HTTPError{Code: http.StatusBadRequest, Message: err.Error()})
@@ -80,7 +80,7 @@ func CreateSpreadsheet(c *gin.Context) {
 // @Success 200 {object} models.Spreadsheet "Spreadsheet retrieved"
 // @Failure 404 {object} models.HTTPError "Spreadsheet not found"
 // @Router /spreadsheets/{id} [get]
-func GetSpreadsheetByID(c *gin.Context) {
+func getSpreadsheetByID(c *gin.Context) {
 	hexID := c.Param("id")
 	var spreadsheetID *models.Spreadsheet = &models.Spreadsheet{ID: utils.ConvertToMongoID(hexID)}
 
@@ -104,7 +104,7 @@ func GetSpreadsheetByID(c *gin.Context) {
 // @Success 200 {object} models.Spreadsheet "Spreadsheet updated"
 // @Failure 404 {object} models.HTTPError "Spreadsheet not found"
 // @Router /spreadsheets/{id} [put]
-func UpdateSpreadsheet(c *gin.Context) {
+func updateSpreadsheet(c *gin.Context) {
 	var updatedSpreadsheet *models.Spreadsheet
 	if err := c.ShouldBindJSON(&updatedSpreadsheet); err != nil {
 		c.JSON(http.StatusBadRequest, models.HTTPError{Code: http.StatusBadRequest, Message: err.Error()})
@@ -153,7 +153,7 @@ func UpdateSpreadsheet(c *gin.Context) {
 // @Success 200 {string} string "Successfully deleted"
 // @Failure 404 {object} models.HTTPError "Spreadsheet not found"
 // @Router /spreadsheets/{id} [delete]
-func DeleteSpreadsheet(c *gin.Context) {
+func deleteSpreadsheet(c *gin.Context) {
 	hexID := c.Param("id")
 	var deleteSpreadsheet *models.Spreadsheet = &models.Spreadsheet{ID: utils.ConvertToMongoID(hexID)}
 

@@ -23,13 +23,12 @@ import (
 // @host      localhost:8080
 // @BasePath  /
 func main() {
-	err := godotenv.Load("./.env")
+	err := godotenv.Load("../.env") // ./.env for docker
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
 
 	router := gin.Default()
-	fmt.Print("test")
 
 	connectionString := fmt.Sprintf(
 		"mongodb://%s/db?authSource=admin&ssl=true&tlsCertificateKeyFile=%s&tlsCAFile=%s",
@@ -47,7 +46,7 @@ func main() {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	handlers.RegisterSpreadsheetsRoutes(router.Group("/spreadsheets"))
-	handlers.RegisterGraphsRoutes(router.Group("/graphs"))
+	handlers.RegisterMatchesRoutes(router.Group("/matches"))
 
 	logger.Log.Infof("Starting the server on port %s", os.Getenv("SERVER_PORT"))
 	if err := router.Run(":" + os.Getenv("SERVER_PORT")); err != nil {
