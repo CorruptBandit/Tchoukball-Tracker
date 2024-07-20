@@ -1,27 +1,31 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
-// Spreadsheet reflects the expected structure of JSON data.
 type Spreadsheet struct {
-	ID   primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
-	Name string             `bson:"name" json:"name"`
-	Data interface{}        `bson:"data" json:"data"`
+	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name string             `json:"name" bson:"name"`
+	Data []interface{}      `json:"data" bson:"data,omitempty"`
 }
 
-// Implement the DatabaseEntity interface for Spreadsheet
-func (s Spreadsheet) CollectionName() string {
+// CollectionName implements MongoModel.
+func (db *Spreadsheet) CollectionName() string {
 	return "Spreadsheet"
 }
 
-func (s *Spreadsheet) New() DatabaseEntity {
+// GetID implements DatabaseEntity.
+func (db *Spreadsheet) GetID() primitive.ObjectID {
+	return db.ID
+}
+
+// SetID implements DatabaseEntity.
+func (db *Spreadsheet) SetID(id primitive.ObjectID) {
+	db.ID = id
+}
+
+// New implements DatabaseEntity.
+func (db *Spreadsheet) New() DatabaseEntity {
 	return &Spreadsheet{}
-}
-
-func (s *Spreadsheet) SetID(id primitive.ObjectID) {
-	s.ID = id
-}
-
-func (s Spreadsheet) GetID() primitive.ObjectID {
-	return s.ID
 }

@@ -1,0 +1,304 @@
+basePath: /
+definitions:
+  models.Graph:
+    properties:
+      datasource:
+        type: string
+      graphType:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  models.HTTPError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  models.Spreadsheet:
+    properties:
+      datasource:
+        items: {}
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Tchoukball Tracker API documentation.
+  title: Tchoukball Tracker API
+  version: "1.0"
+paths:
+  /graphs:
+    get:
+      consumes:
+      - application/json
+      description: get all graphs from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of graphs
+          schema:
+            items:
+              $ref: '#/definitions/models.Graph'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Retrieve all graphs
+      tags:
+      - graphs
+    post:
+      consumes:
+      - application/json
+      description: create a new graph with the provided details
+      parameters:
+      - description: Graph Info
+        in: body
+        name: graph
+        required: true
+        schema:
+          $ref: '#/definitions/models.Graph'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Graph'
+        "400":
+          description: Bad request - invalid JSON
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "422":
+          description: Bad request - missing element
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Create a new graph
+      tags:
+      - graphs
+  /graphs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a graph by ID
+      parameters:
+      - description: Graph ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted
+          schema:
+            type: string
+        "404":
+          description: Graph not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Delete a graph
+      tags:
+      - graphs
+    get:
+      consumes:
+      - application/json
+      description: get graph by ID from the database
+      parameters:
+      - description: Graph ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Graph retrieved
+          schema:
+            $ref: '#/definitions/models.Graph'
+        "404":
+          description: Graph not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Retrieve a graph by ID
+      tags:
+      - graphs
+    put:
+      consumes:
+      - application/json
+      description: update details of a graph by ID
+      parameters:
+      - description: Graph ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Graph info
+        in: body
+        name: graph
+        required: true
+        schema:
+          $ref: '#/definitions/models.Graph'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Graph updated
+          schema:
+            $ref: '#/definitions/models.Graph'
+        "404":
+          description: Graph not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Update a graph
+      tags:
+      - graphs
+  /spreadsheets:
+    get:
+      consumes:
+      - application/json
+      description: get all spreadsheets from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of spreadsheets
+          schema:
+            items:
+              $ref: '#/definitions/models.Spreadsheet'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Retrieve all spreadsheets
+      tags:
+      - spreadsheets
+    post:
+      consumes:
+      - application/json
+      description: create a new spreadsheet with the provided details
+      parameters:
+      - description: Spreadsheet Info
+        in: body
+        name: spreadsheet
+        required: true
+        schema:
+          $ref: '#/definitions/models.Spreadsheet'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Spreadsheet'
+        "400":
+          description: Bad request - invalid JSON
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "422":
+          description: Bad request - missing element
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Create a new spreadsheet
+      tags:
+      - spreadsheets
+  /spreadsheets/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a spreadsheet by ID
+      parameters:
+      - description: Spreadsheet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted
+          schema:
+            type: string
+        "404":
+          description: Spreadsheet not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Delete a spreadsheet
+      tags:
+      - spreadsheets
+    get:
+      consumes:
+      - application/json
+      description: get spreadsheet by ID from the database
+      parameters:
+      - description: Spreadsheet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Spreadsheet retrieved
+          schema:
+            $ref: '#/definitions/models.Spreadsheet'
+        "404":
+          description: Spreadsheet not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Retrieve a spreadsheet by ID
+      tags:
+      - spreadsheets
+    put:
+      consumes:
+      - application/json
+      description: update details of a spreadsheet by ID
+      parameters:
+      - description: Spreadsheet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Spreadsheet info
+        in: body
+        name: spreadsheet
+        required: true
+        schema:
+          $ref: '#/definitions/models.Spreadsheet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Spreadsheet updated
+          schema:
+            $ref: '#/definitions/models.Spreadsheet'
+        "404":
+          description: Spreadsheet not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Update a spreadsheet
+      tags:
+      - spreadsheets
+swagger: "2.0"
