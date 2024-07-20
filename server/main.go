@@ -21,7 +21,11 @@ import (
 func main() {
 	err := godotenv.Load("./.env")
 	if err != nil {
-		log.Fatalf("Error loading .env file")
+		// If it fails, try to load .env file from the parent directory
+		err = godotenv.Load("./../.env")
+		if err != nil {
+			log.Fatalf("Error loading .env file")
+		}
 	}
 
 	router := gin.Default()
@@ -42,7 +46,6 @@ func main() {
 
 	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	handlers.RegisterSpreadsheetRoutes(router.Group("/spreadsheets"))
-	handlers.RegisterGraphsRoutes(router.Group("/graphs"))
 
 	logger.Log.Info("Starting the server on port" + os.Getenv("SERVER_PORT"))
 	if err := router.Run(":" + os.Getenv("SERVER_PORT")); err != nil {
