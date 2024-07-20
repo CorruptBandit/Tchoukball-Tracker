@@ -3,6 +3,7 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/Tchoukball-Tracker/pkg/database"
 	"github.com/Tchoukball-Tracker/pkg/models"
@@ -57,15 +58,19 @@ func createMatch(c *gin.Context) {
 		return
 	}
 
+	if newMatch.Name == "" {
+		c.JSON(http.StatusUnprocessableEntity, models.HTTPError{Code: http.StatusUnprocessableEntity, Message: "Please provide a name for the Match"})
+		return
+	}
+
 	result, err := database.FindByName(c.Request.Context(), newMatch, newMatch.Name)
 	if result != nil {
 		c.JSON(http.StatusUnprocessableEntity, models.HTTPError{Code: http.StatusUnprocessableEntity, Message: "Match name already used"})
 		return
 	}
 
-	if newMatch.Name == "" {
-		c.JSON(http.StatusUnprocessableEntity, models.HTTPError{Code: http.StatusUnprocessableEntity, Message: "Please provide a name for the Match"})
-		return
+	if newMatch.CreatedAt.IsZero() {
+		newMatch.CreatedAt = time.Now().UTC()
 	}
 
 	if newMatch.Thirds == nil {

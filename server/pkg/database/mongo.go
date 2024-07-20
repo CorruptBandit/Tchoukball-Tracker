@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"time"
 
@@ -100,7 +101,19 @@ func (mdb *MongoDB) Find(ctx context.Context, entity models.DatabaseEntity) (mod
 func (mdb *MongoDB) FindByName(ctx context.Context, entity models.DatabaseEntity, name string) (models.DatabaseEntity, error) {
 	collection := mdb.db.Collection(entity.CollectionName())
 
-	err := collection.FindOne(ctx, bson.M{"name": name}).Decode(entity)
+	result := collection.FindOne(ctx, bson.M{"name": name})
+	if err := result.Err(); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, errors.New("Failed to find result with this name")
+		}
+
+		return nil, err
+	}
+
+	err := result.Decode(entity)
+	if err != nil {
+		return nil, err
+	}
 	return entity, err
 }
 
