@@ -13,17 +13,17 @@ func RegisterSpreadsheetRoutes(router *gin.RouterGroup) {
 	router.GET("", getAllSpreadsheets)
 	router.POST("", uploadSpreadsheet)
 	router.GET("/:id", getSpreadsheetByID)
-	router.PUT("/:id", UpdateSpreadsheet)
+	// router.PUT("/:id", UpdateGraph)
 	// router.DELETE("/:id", DeleteGraph)
 }
 
 func getAllSpreadsheets(c *gin.Context) {
-	spreadsheets, err := database.FindAll(c.Request.Context(), &models.Spreadsheet{})
+	spreadsheet, err := database.FindAll(c.Request.Context(), &models.Spreadsheet{})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.HTTPError{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, spreadsheets)
+	c.JSON(http.StatusOK, spreadsheet)
 }
 
 func getSpreadsheetByID(c *gin.Context) {
@@ -32,7 +32,7 @@ func getSpreadsheetByID(c *gin.Context) {
 
 	spreadsheet, err := database.Find(c.Request.Context(), spreadsheetID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, models.HTTPError{Code: http.StatusNotFound, Message: "Spreadsheet not found"})
+		c.JSON(http.StatusNotFound, models.HTTPError{Code: http.StatusNotFound, Message: "Graph not found"})
 		return
 	}
 
@@ -51,22 +51,6 @@ func uploadSpreadsheet(c *gin.Context) {
 
 	if _, err := database.Insert(c.Request.Context(), &spreadsheet); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert data: " + err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Data successfully inserted"})
-}
-
-// UpdateSpreadsheet handles PUT requests to update spreadsheet data.
-func UpdateSpreadsheet(c *gin.Context) {
-	var data interface{}
-	if err := c.ShouldBindJSON(&data); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON data"})
-		return
-	}
-
-	if _, err := database.Update(c.Request.Context(), &spreadsheet); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update data: " + err.Error()})
 		return
 	}
 
