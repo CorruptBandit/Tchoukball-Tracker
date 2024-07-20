@@ -70,7 +70,7 @@ func (mdb *MongoDB) FindAll(ctx context.Context, entity models.DatabaseEntity) (
 	// Create a cursor over all documents
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
-		return nil, err
+		return []models.DatabaseEntity{}, err
 	}
 	defer cursor.Close(ctx)
 
@@ -79,7 +79,7 @@ func (mdb *MongoDB) FindAll(ctx context.Context, entity models.DatabaseEntity) (
 	for cursor.Next(ctx) {
 		elem := entity.New()
 		if err := cursor.Decode(elem); err != nil {
-			return nil, err
+			return results, err
 		}
 		results = append(results, elem)
 	}
