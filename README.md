@@ -6,6 +6,8 @@ Application to track statistics.
 
 There are two options, run with local node and go or run within docker.
 
+Certificates are required. Please contact the developers for these.
+
 **Run Locally:**
 1. MongoDB: `docker compose up mongodb`
 1. Backend: `(cd server && go run main.go)`
