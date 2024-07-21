@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Tchoukball-Tracker/pkg/database"
+	"github.com/Tchoukball-Tracker/pkg/logger"
 	"github.com/Tchoukball-Tracker/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
@@ -36,6 +37,7 @@ func login(c *gin.Context) {
 	// Find user by username
 	result, err := database.FindByName(c.Request.Context(), &models.User{}, loginRequest.Username)
 	if err != nil {
+		logger.Log.Error(err)
 		c.JSON(http.StatusUnauthorized, models.HTTPError{Code: http.StatusUnauthorized, Message: "Invalid username or password"})
 		return
 	}
@@ -67,5 +69,5 @@ func login(c *gin.Context) {
 
 	// Set the JWT token as an HTTP-only cookie
 	c.SetCookie("auth_token", tokenString, int(expirationTime.Unix()-time.Now().Unix()), "/", "", false, true)
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, models.HTTPSuccess{Code: http.StatusOK, Message: "Logged in as: " + user.Name})
 }

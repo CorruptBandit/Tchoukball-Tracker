@@ -1,12 +1,12 @@
-import { useContext, useState } from 'react';
+import { useContext, useState } from "react";
 // import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 // import {
 //   fetchUserPreferences,
 //   updateUserPreferences
 // } from '../store/slices/userSlice';
 
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Button,
   Card,
@@ -18,23 +18,22 @@ import {
   Link,
   OutlinedInput,
   TextField,
-  Typography
-} from '@mui/material';
-import { AuthContext } from '../App';
-import { useDispatch } from 'react-redux';
-import { login } from '../store/slices/usersSlice';
+  Typography,
+} from "@mui/material";
+import { AuthContext } from "../App";
+import { useDispatch } from "react-redux";
+import { login } from "../store/slices/usersSlice";
 
 export default function LoginView() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { setIsLoggedIn } = useContext(AuthContext);
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [keepLoggedIn, setKeepLoggedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [loginRequestStatus, setLoginRequestStatus] = useState('idle');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -50,96 +49,97 @@ export default function LoginView() {
   };
 
   const canLogin =
-    [username, password].every(Boolean) && loginRequestStatus === 'idle';
+    [username, password].every(Boolean);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     if (canLogin) {
-      let isMounted = true;
-      setErrorMessage('');
-      setLoginRequestStatus('pending');
+      setErrorMessage("");
       let payload = {
         username: username,
         password: password,
-        keep_logged_in: keepLoggedIn
-      }
-        
+        keep_logged_in: keepLoggedIn,
+      };
 
-        await dispatch(login(payload)).unwrap().then((response) => {
-          if (response.ok) {
-            const data = response.json();
-                setUsername('');
-                setPassword('');
-                setIsLoggedIn(true);
-                console.log(data)
-            }
+      await dispatch(login(payload))
+        .unwrap()
+        .then(() => {
+            setUsername("");
+            setPassword("");
+            setIsLoggedIn(true);
+            navigate("/");
+        })
+        .catch((error) => {
+          console.log(error)
+          if (error.status === 401) {
+            setErrorMessage("Invalid Credentials");
+          } else {
+            setErrorMessage(error.message || "An unexpected error occurred");
           }
-        )}
-    };
+        });
+    }
+  };
 
-              // set token in cookie
+  // set token in cookie
 
-              
-              // dispatch(fetchSettings());
+  // dispatch(fetchSettings());
 
-              // dispatch(fetchUserPreferences(data.auth_token)).then(
-              //   (preferencesResponse) => {
-              //     if (
-              //       preferencesResponse.status !== 'success' &&
-              //       preferencesResponse.error !== undefined &&
-              //       preferencesResponse.error.message ===
-              //         'A user with this ID could not be found.'
-              //     ) {
-              //       dispatch(
-              //         updateUserPreferences({
-              //           emailNotifications: true,
-              //           auth_token: data.auth_token
-              //         })
-              //       );
-              //     }
-              //  }
-              //);
+  // dispatch(fetchUserPreferences(data.auth_token)).then(
+  //   (preferencesResponse) => {
+  //     if (
+  //       preferencesResponse.status !== 'success' &&
+  //       preferencesResponse.error !== undefined &&
+  //       preferencesResponse.error.message ===
+  //         'A user with this ID could not be found.'
+  //     ) {
+  //       dispatch(
+  //         updateUserPreferences({
+  //           emailNotifications: true,
+  //           auth_token: data.auth_token
+  //         })
+  //       );
+  //     }
+  //  }
+  //);
 
-    //           if (data.user.role === 'OutcomeOwner') {
-    //             navigate('/outcome-owner-navigation');
-    //           } else if (data.user.role === 'Questioner') {
-    //             navigate('/questioner-navigation');
-    //           } else {
-    //             navigate('/');
-    //           }
+  //           if (data.user.role === 'OutcomeOwner') {
+  //             navigate('/outcome-owner-navigation');
+  //           } else if (data.user.role === 'Questioner') {
+  //             navigate('/questioner-navigation');
+  //           } else {
+  //             navigate('/');
+  //           }
 
-    //           setLoginRequestStatus('idle');
-    //           isMounted = false;
-    //         }
-    //       } else {
-    //         throw new Error('Failed to login.');
-    //       }
-    //     } else {
-    //       throw new Error('Login request failed.');
-    //     }
-    //   } catch (err) {
-    //     setErrorMessage(`Failed to login: ${err.message}`);
-    //     setLoginRequestStatus('idle');
-    //     isMounted = false;
-    //   }
-    // } else if (!username || !password) {
-    //   setErrorMessage(
-    //     'Please ensure you enter a username and password before trying to login.'
-    //   );
-    // } else {
-    //   setErrorMessage('Failed to login.');
-    // }
+  //           setLoginRequestStatus('idle');
+  //           isMounted = false;
+  //         }
+  //       } else {
+  //         throw new Error('Failed to login.');
+  //       }
+  //     } else {
+  //       throw new Error('Login request failed.');
+  //     }
+  //   } catch (err) {
+  //     setErrorMessage(`Failed to login: ${err.message}`);
+  //     setLoginRequestStatus('idle');
+  //     isMounted = false;
+  //   }
+  // } else if (!username || !password) {
+  //   setErrorMessage(
+  //     'Please ensure you enter a username and password before trying to login.'
+  //   );
+  // } else {
+  //   setErrorMessage('Failed to login.');
+  // }
 
   return (
     <div style={styles.container}>
-      <Card
-        sx={{ p: 6, mx: 6, my: 12 }}
-        style={styles.card}
-        raised>
+      <Card sx={{ p: 6, mx: 6, my: 12 }} style={styles.card} raised>
         <form className="LoginView" onSubmit={handleLogin}>
           <Typography
-            sx={{ fontWeight: 'bold', fontSize: '1.1rem' }}
-            className="text-center">
+            sx={{ fontWeight: "bold", fontSize: "1.1rem" }}
+            className="text-center"
+          >
             Log In
           </Typography>
           <Typography color="error">{errorMessage}</Typography>
@@ -150,9 +150,9 @@ export default function LoginView() {
               variant="outlined"
               fullWidth
               sx={{
-                '& fieldset': {
-                  borderRadius: '9999px'
-                }
+                "& fieldset": {
+                  borderRadius: "9999px",
+                },
               }}
               type="text"
               value={username}
@@ -166,14 +166,15 @@ export default function LoginView() {
               </InputLabel>
               <OutlinedInput
                 id="outlined-adornment-password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton
                       aria-label="toggle password visibility"
                       onClick={handleClickShowPassword}
                       onMouseDown={handleMouseDownPassword}
-                      edge="end">
+                      edge="end"
+                    >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
@@ -181,9 +182,9 @@ export default function LoginView() {
                 label="Password"
                 fullWidth
                 sx={{
-                  '& fieldset': {
-                    borderRadius: '9999px'
-                  }
+                  "& fieldset": {
+                    borderRadius: "9999px",
+                  },
                 }}
                 value={password}
                 onChange={(event) => changePassword(event)}
@@ -207,41 +208,43 @@ export default function LoginView() {
               type="submit"
               variant="contained"
               sx={{
-                borderRadius: '9999px'
+                borderRadius: "9999px",
               }}
-              className="w-full">
+              className="w-full"
+            >
               Log In
             </Button>
           </div>
           <div
             className="flex"
-            style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
-            {(
-              import.meta.env.REACT_APP_REGISTER_TYPE === 'verify' ||
-              import.meta.env.REACT_APP_REGISTER_TYPE === 'open'
-            ) && (
+            style={{ justifyContent: "space-between", flexWrap: "wrap" }}
+          >
+            {(import.meta.env.REACT_APP_REGISTER_TYPE === "verify" ||
+              import.meta.env.REACT_APP_REGISTER_TYPE === "open") && (
               <div className="flex">
-                <Typography sx={{ fontSize: '0.875rem' }}>
-                  Don&apos;t have an account?{' '}
+                <Typography sx={{ fontSize: "0.875rem" }}>
+                  Don&apos;t have an account?{" "}
                 </Typography>
                 <Link
                   href="/register"
                   className="underline hover:cursor-pointer"
                   color="primary.main"
-                  sx={{ mx: 0.6, fontSize: '0.875rem' }}>
+                  sx={{ mx: 0.6, fontSize: "0.875rem" }}
+                >
                   Register now
                 </Link>
               </div>
             )}
             <div className="flex">
-              <Typography sx={{ fontSize: '0.875rem' }}>
-                Forgot your password?{' '}
+              <Typography sx={{ fontSize: "0.875rem" }}>
+                Forgot your password?{" "}
               </Typography>
               <Link
                 href="/reset-password"
                 className="underline hover:cursor-pointer"
                 color="primary.main"
-                sx={{ mx: 0.6, fontSize: '0.875rem' }}>
+                sx={{ mx: 0.6, fontSize: "0.875rem" }}
+              >
                 Reset password
               </Link>
             </div>
@@ -254,16 +257,16 @@ export default function LoginView() {
 
 const styles = {
   container: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    width: '100vw',
-    backgroundColor: '#f0f0f0',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100vh",
+    width: "100vw",
+    backgroundColor: "#f0f0f0",
   },
   card: {
-    width: '100%',
-    maxWidth: '400px',
-    margin: '0 auto',
+    width: "100%",
+    maxWidth: "400px",
+    margin: "0 auto",
   },
 };

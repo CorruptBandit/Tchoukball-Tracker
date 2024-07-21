@@ -1,25 +1,17 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { dashboardAPI } from "../DashboardAPI";
 
 // Thunk for user login
 export const login = createAsyncThunk(
   'users/login',
   async (payload) => {
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+    const response = await dashboardAPI.post('/api/login',
+      {
         username: payload.username,
         password: payload.password,
         keep_logged_in: payload.keep_logged_in
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Login request failed');
-    }
-
+      }
+    );
     return response.json();
   }
 );
