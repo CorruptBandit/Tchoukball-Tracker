@@ -3,12 +3,17 @@ package handlers
 
 import (
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/Tchoukball-Tracker/pkg/database"
 	"github.com/Tchoukball-Tracker/pkg/models"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var jwtKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 
 func RegisterAuthRoutes(router *gin.RouterGroup) {
 	router.POST("", Login)
@@ -19,6 +24,12 @@ type LoginRequest struct {
 	Username     string `json:"username"`
 	Password     string `json:"password"`
 	KeepLoggedIn bool   `json:"keep_logged_in"`
+}
+
+// Claims struct to hold JWT claims
+type Claims struct {
+	Username string `json:"username"`
+	jwt.RegisteredClaims
 }
 
 // Login handles the login process
@@ -45,8 +56,25 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Generate token (implementation of token generation is skipped)
-	token := "generated_jwt_token"
+	// Set token expiration time
+	expirationTime := time.Now().Add(24 * time.Hour) // 24-hour token validity
+	claims := &Claims{
+		Username: user.Username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+		},
+	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "success", "auth_token": token, "user": user.ToDomain()})
+	// Generate JWT token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jwtKey)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.HTTPError{Code: http.StatusInternalServerError, Message: "Could not generate token"})
+		return
+	}
+
+	// Set the JWT token as an HTTP-only cookie
+	c.SetCookie("auth_token", tokenString, int(expirationTime.Unix()-time.Now().Unix()), "/", "", false, true)
+
+	c.JSON(http.StatusOK, gin.H{"status": "success", "auth_token": tokenString, "user": user.ToDomain()})
 }
