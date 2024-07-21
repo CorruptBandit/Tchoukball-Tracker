@@ -6,6 +6,7 @@ dotenv.config();
 
 const CLIENT_PORT = Number(process.env.CLIENT_PORT) || 5173;
 const SERVER_PORT = Number(process.env.SERVER_PORT) || 8080;
+const proxyTarget = process.env.MONGO_HOST !== 'localhost' ? `http://backend:${SERVER_PORT}` : `http://localhost:${SERVER_PORT}`;
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -29,7 +30,7 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: `http://localhost:${SERVER_PORT}`,
+        target: proxyTarget,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },

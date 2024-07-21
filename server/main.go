@@ -23,7 +23,7 @@ import (
 // @host      localhost:8080
 // @BasePath  /
 func main() {
-	err := godotenv.Load("../.env") // ./.env for docker
+	err := godotenv.Load("./.env")
 	if err != nil {
 		// If it fails, try to load .env file from the parent directory
 		err = godotenv.Load("./../.env")
@@ -40,7 +40,7 @@ func main() {
 		os.Getenv("TLS_CERT_FILE"),
 		os.Getenv("TLS_CA_FILE"))
 
-	if err := database.Connect(connectionString, "DashboardCreator"); err != nil {
+	if err := database.Connect(connectionString, "Tchoukball"); err != nil {
 		logger.Log.Fatalf("Failed to connect to database: %v", err)
 	}
 
