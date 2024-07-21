@@ -2,13 +2,16 @@ import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link as RouterLink } from "react-router-dom";
 import {
+  Box,
   Typography,
   Paper,
   Grid,
   Button,
   Container,
   TextField,
-  Pagination
+  Pagination,
+  CssBaseline,
+  Card
 } from "@mui/material";
 import { formatDistanceToNow } from "date-fns";
 import { selectAllMatches, fetchMatches } from "../store/slices/matchesSlice";
@@ -19,7 +22,7 @@ const MatchesView = () => {
   const matchStatus = useSelector(state => state.matches.status);
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 3;
 
   useEffect(() => {
     if (matchStatus === "idle") {
@@ -46,56 +49,76 @@ const MatchesView = () => {
   };
 
   return (
-    <Container maxWidth="md">
-      <Typography variant="h4" sx={{ mt: 4, mb: 2 }}>
-        Matches
-      </Typography>
-      <TextField
-        fullWidth
-        label="Search Matches"
-        variant="outlined"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{ mb: 4 }}
-      />
-      {matchesToShow.map((match) => (
-        <Paper key={match.id} elevation={3} sx={{ margin: 2, padding: 2 }}>
-          <Typography variant="h5" gutterBottom>
-            {match.name}
+    <>
+      <CssBaseline />
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+          <Typography variant="h4" component="h1" fontWeight="bold">
+            Matches
           </Typography>
-          <Typography variant="subtitle1" gutterBottom>
-            Played on: {new Date(match.created_at).toLocaleDateString()} 
-            {" "}({formatDistanceToNow(new Date(match.created_at), { addSuffix: true })})
-          </Typography>
-          <Grid container spacing={2}>
-            {Object.entries(match.thirds).map(([key, value]) => (
-              <Grid item key={key} xs={4}>
-                <Button
-                  component={RouterLink}
-                  to={`/match/${match.id}/third/${value}`}
-                  variant="outlined"
-                  sx={{ width: '100%' }}
-                >
-                  {key.toUpperCase()}
-                </Button>
-              </Grid>
-            ))}
-          </Grid>
-        </Paper>
-      ))}
-      {filteredMatches.length === 0 && (
-        <Typography variant="subtitle1">No matches found.</Typography>
-      )}
-      {pageCount > 1 && (
-        <Pagination
-          count={pageCount}
-          page={page}
-          onChange={handlePageChange}
-          sx={{ marginTop: 2, paddingBottom: 2 }}
-          color="primary"
+          <Button
+            component={RouterLink}
+            to="/create-match"
+            variant="contained"
+            color="primary"
+            size="large"
+          >
+            Create Match
+          </Button>
+        </Box>
+        <TextField
+          fullWidth
+          label="Search Matches"
+          variant="outlined"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          sx={{ mb: 4 }}
         />
-      )}
-    </Container>
+        <Grid container spacing={3}>
+          {matchesToShow.map((match) => (
+            <Grid item xs={12} key={match.id}>
+              <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+                <Typography variant="h5" gutterBottom fontWeight="bold">
+                  {match.name}
+                </Typography>
+                <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+                  Played on: {new Date(match.created_at).toLocaleDateString()} ({formatDistanceToNow(new Date(match.created_at), { addSuffix: true })})
+                </Typography>
+                <Grid container spacing={2} sx={{ mt: 2 }}>
+                  {Object.entries(match.thirds).map(([key], index) => (
+                    <Grid item xs={4} key={key}>
+                      <Button
+                        component={RouterLink}
+                        to={`/match/${match.id}/third/${index + 1}`}
+                        variant="outlined"
+                        fullWidth
+                        sx={{ py: 1 }}
+                      >
+                        {key.toUpperCase()}
+                      </Button>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+        {filteredMatches.length === 0 && (
+          <Typography variant="subtitle1" align="center" sx={{ mt: 4 }}>No matches found.</Typography>
+        )}
+        {pageCount > 1 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <Pagination
+              count={pageCount}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              size="large"
+            />
+          </Box>
+        )}
+      </Container>
+      </>
   );
 };
 

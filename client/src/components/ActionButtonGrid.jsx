@@ -5,13 +5,14 @@ import Grid from "@mui/material/Grid";
 
 function ActionButtonGrid({ buttons }) {
   return (
-    <Grid container spacing={1} padding={1}>
+    <Grid container spacing={2}>
       {buttons?.map((button) => (
-        <Grid item key={button.name}>
+        <Grid item key={button.name} xs={6} sm={3}>
           <Button
             variant="contained"
             color="primary"
             onClick={button.onClick}
+            fullWidth
           >
             {button.name}
           </Button>

@@ -67,7 +67,6 @@ import {
         "/api/matches",
         {
           name: payload.name,
-          path: payload.path
         }
       );
       return response.json();
@@ -90,6 +89,9 @@ import {
         .addCase(fetchMatches.rejected, (state, action) => {
           state.status = "failed";
           state.error = action.error.message;
+        })
+        .addCase(fetchMatchById.fulfilled, (state, action) => {
+          matchAdapter.upsertOne(state, action.payload);
         })
         .addCase(updateMatch.fulfilled, (state, action) => {
           const updatedMatch = action.payload;
