@@ -3,18 +3,18 @@ import PropTypes from "prop-types";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 
-function ActionButtonGrid({ buttons }) {
+function ActionButtonGrid({ buttons, onClick }) {
   return (
     <Grid container spacing={2}>
-      {buttons?.map((button) => (
-        <Grid item key={button.name} xs={6} sm={3}>
+      {buttons?.map((name) => (
+        <Grid item key={name} xs={6} sm={3}>
           <Button
             variant="contained"
-            color="primary"
-            onClick={button.onClick}
+            color="secondary"
+            onClick={() => onClick(name)}
             fullWidth
           >
-            {button.name}
+            {name}
           </Button>
         </Grid>
       ))}
@@ -23,12 +23,8 @@ function ActionButtonGrid({ buttons }) {
 }
 
 ActionButtonGrid.propTypes = {
-  buttons: PropTypes.arrayOf(
-    PropTypes.shape({
-      name: PropTypes.string.isRequired,
-      onClick: PropTypes.func.isRequired,
-    })
-  ).isRequired,
+  buttons: PropTypes.array.isRequired,
+  onClick: PropTypes.func.isRequired,
 };
 
 export default ActionButtonGrid;

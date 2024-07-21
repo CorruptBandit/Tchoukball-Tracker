@@ -5,14 +5,14 @@ import (
 )
 
 type Spreadsheet struct {
-	ID   primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Name string             `json:"name" bson:"name"`
-	Data []interface{}      `json:"data" bson:"data,omitempty"`
+	ID      primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Name    string             `json:"name" bson:"name"`
+	Players []*Player          `json:"players" bson:"players"`
 }
 
 // CollectionName implements MongoModel.
 func (db *Spreadsheet) CollectionName() string {
-	return "Spreadsheet"
+	return "Spreadsheets"
 }
 
 // GetID implements DatabaseEntity.
@@ -28,4 +28,13 @@ func (db *Spreadsheet) SetID(id primitive.ObjectID) {
 // New implements DatabaseEntity.
 func (db *Spreadsheet) New() DatabaseEntity {
 	return &Spreadsheet{}
+}
+
+func (db *Spreadsheet) FindPlayer(name string) *Player {
+	for _, player := range db.Players {
+		if player.Name == name {
+			return player
+		}
+	}
+	return nil
 }

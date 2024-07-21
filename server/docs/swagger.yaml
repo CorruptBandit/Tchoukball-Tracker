@@ -1,15 +1,26 @@
 basePath: /
 definitions:
-  models.Graph:
+  models.Attacking:
     properties:
-      datasource:
-        type: string
-      graphType:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
+      caught:
+        type: integer
+      mistake:
+        type: integer
+      point:
+        type: integer
+      short:
+        type: integer
+    type: object
+  models.Defending:
+    properties:
+      drop:
+        type: integer
+      first:
+        type: integer
+      gap:
+        type: integer
+      second:
+        type: integer
     type: object
   models.HTTPError:
     properties:
@@ -20,24 +31,47 @@ definitions:
     type: object
   models.Match:
     properties:
+      created_at:
+        type: string
       id:
         type: string
       name:
         type: string
+      players:
+        items:
+          type: string
+        type: array
       thirds:
         additionalProperties:
           type: string
         type: object
     type: object
+  models.Player:
+    properties:
+      attacking:
+        $ref: '#/definitions/models.Attacking'
+      defending:
+        $ref: '#/definitions/models.Defending'
+      name:
+        type: string
+    type: object
+  models.PlayerAction:
+    properties:
+      type:
+        type: string
+      value:
+        type: integer
+    type: object
   models.Spreadsheet:
     properties:
-      data:
-        items: {}
-        type: array
       id:
         type: string
       name:
         type: string
+      players:
+        items:
+          $ref: '#/definitions/models.Player'
+        type: array
     type: object
 host: localhost:8080
 info:
@@ -46,139 +80,6 @@ info:
   title: Tchoukball Tracker API
   version: "1.0"
 paths:
-  /graphs:
-    get:
-      consumes:
-      - application/json
-      description: get all graphs from the database
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of graphs
-          schema:
-            items:
-              $ref: '#/definitions/models.Graph'
-            type: array
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/models.HTTPError'
-      summary: Retrieve all graphs
-      tags:
-      - graphs
-    post:
-      consumes:
-      - application/json
-      description: create a new graph with the provided details
-      parameters:
-      - description: Graph Info
-        in: body
-        name: graph
-        required: true
-        schema:
-          $ref: '#/definitions/models.Graph'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Successfully created
-          schema:
-            $ref: '#/definitions/models.Graph'
-        "400":
-          description: Bad request - invalid JSON
-          schema:
-            $ref: '#/definitions/models.HTTPError'
-        "422":
-          description: Bad request - missing element
-          schema:
-            $ref: '#/definitions/models.HTTPError'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/models.HTTPError'
-      summary: Create a new graph
-      tags:
-      - graphs
-  /graphs/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: delete a graph by ID
-      parameters:
-      - description: Graph ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully deleted
-          schema:
-            type: string
-        "404":
-          description: Graph not found
-          schema:
-            $ref: '#/definitions/models.HTTPError'
-      summary: Delete a graph
-      tags:
-      - graphs
-    get:
-      consumes:
-      - application/json
-      description: get graph by ID from the database
-      parameters:
-      - description: Graph ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Graph retrieved
-          schema:
-            $ref: '#/definitions/models.Graph'
-        "404":
-          description: Graph not found
-          schema:
-            $ref: '#/definitions/models.HTTPError'
-      summary: Retrieve a graph by ID
-      tags:
-      - graphs
-    put:
-      consumes:
-      - application/json
-      description: update details of a graph by ID
-      parameters:
-      - description: Graph ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Graph info
-        in: body
-        name: graph
-        required: true
-        schema:
-          $ref: '#/definitions/models.Graph'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Graph updated
-          schema:
-            $ref: '#/definitions/models.Graph'
-        "404":
-          description: Graph not found
-          schema:
-            $ref: '#/definitions/models.HTTPError'
-      summary: Update a graph
-      tags:
-      - graphs
   /matches:
     get:
       consumes:
@@ -443,6 +344,93 @@ paths:
           schema:
             $ref: '#/definitions/models.HTTPError'
       summary: Update a spreadsheet
+      tags:
+      - spreadsheets
+  /spreadsheets/{id}/player:
+    post:
+      consumes:
+      - application/json
+      description: create a new spreadsheet with the provided details
+      parameters:
+      - description: Spreadsheet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Spreadsheet Info
+        in: body
+        name: spreadsheet
+        required: true
+        schema:
+          $ref: '#/definitions/models.Player'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Spreadsheet'
+        "400":
+          description: Bad request - invalid JSON
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "422":
+          description: Bad request - missing element
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Create a new spreadsheet
+      tags:
+      - spreadsheets
+  /spreadsheets/{id}/player/{player}/action:
+    post:
+      consumes:
+      - application/json
+      description: create a new action for the player
+      parameters:
+      - description: Spreadsheet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Player name
+        in: path
+        name: player
+        required: true
+        type: string
+      - description: Action Info
+        in: body
+        name: spreadsheet
+        required: true
+        schema:
+          $ref: '#/definitions/models.PlayerAction'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Player'
+        "400":
+          description: Bad request - invalid JSON
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "404":
+          description: Failed to find player
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "422":
+          description: Bad request - missing element
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Create a new player action
       tags:
       - spreadsheets
 swagger: "2.0"

@@ -1,4 +1,3 @@
-// handlers/Matches.go
 package handlers
 
 import (
@@ -21,7 +20,7 @@ func RegisterMatchesRoutes(router *gin.RouterGroup) {
 	router.DELETE("/:id", deleteMatch)
 }
 
-// GetAllMatches retrieves all matches.
+// getAllMatches retrieves all matches.
 // @Summary Retrieve all matches
 // @Description get all matches from the database
 // @Tags matches
@@ -39,7 +38,7 @@ func getAllMatches(c *gin.Context) {
 	c.JSON(http.StatusOK, dbMatches)
 }
 
-// CreateMatch creates a new match.
+// createMatch creates a new match.
 // @Summary Create a new match
 // @Description create a new match with the provided details
 // @Tags matches
@@ -77,22 +76,28 @@ func createMatch(c *gin.Context) {
 		newMatch.Thirds = make(map[string]primitive.ObjectID)
 	}
 
-	//create all 3 thirds and assign it to the match
-	first := models.Spreadsheet{Name: newMatch.Name + " - First Third"}
-	second := models.Spreadsheet{Name: newMatch.Name + " - Second Third"}
-	third := models.Spreadsheet{Name: newMatch.Name + " - Third Third"}
+	var players []*models.Player
+	for _, player := range newMatch.Players {
+		players = append(players, &models.Player{
+			Name: player,
+		})
+	}
 
-	dbFirst, err := database.Insert(c.Request.Context(), &first)
+	first := &models.Spreadsheet{Name: newMatch.Name + " - First Third", Players: players}
+	second := &models.Spreadsheet{Name: newMatch.Name + " - Second Third", Players: players}
+	third := &models.Spreadsheet{Name: newMatch.Name + " - Third Third", Players: players}
+
+	dbFirst, err := database.Insert(c.Request.Context(), first)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.HTTPError{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
-	dbSecond, err := database.Insert(c.Request.Context(), &second)
+	dbSecond, err := database.Insert(c.Request.Context(), second)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.HTTPError{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
-	dbThird, err := database.Insert(c.Request.Context(), &third)
+	dbThird, err := database.Insert(c.Request.Context(), third)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.HTTPError{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
@@ -102,6 +107,7 @@ func createMatch(c *gin.Context) {
 	newMatch.Thirds["second"] = dbSecond.GetID()
 	newMatch.Thirds["third"] = dbThird.GetID()
 
+	newMatch.Players = nil
 	dbMatch, err := database.Insert(c.Request.Context(), newMatch)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.HTTPError{Code: http.StatusInternalServerError, Message: err.Error()})
@@ -111,7 +117,7 @@ func createMatch(c *gin.Context) {
 	c.JSON(http.StatusCreated, dbMatch)
 }
 
-// GetMatchByID retrieves a match by ID.
+// getMatchByID retrieves a match by ID.
 // @Summary Retrieve a match by ID
 // @Description get match by ID from the database
 // @Tags matches
@@ -134,7 +140,7 @@ func getMatchByID(c *gin.Context) {
 	c.JSON(http.StatusOK, dbMatch)
 }
 
-// UpdateMatch updates a match by ID.
+// updateMatch updates a match by ID.
 // @Summary Update a match
 // @Description update details of a match by ID
 // @Tags matches
@@ -180,7 +186,7 @@ func updateMatch(c *gin.Context) {
 	c.JSON(http.StatusOK, fetchedMatch)
 }
 
-// DeleteMatch deletes a match by ID.
+// deleteMatch deletes a match by ID.
 // @Summary Delete a match
 // @Description delete a match by ID
 // @Tags matches

@@ -1,10 +1,29 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
-import { Typography, Container, Card, Box, CssBaseline, Button } from "@mui/material";
+import {
+  Typography,
+  Container,
+  Card,
+  Box,
+  CssBaseline,
+  Button,
+} from "@mui/material";
 import ActionButtonGrid from "../components/ActionButtonGrid";
 import Spreadsheet from "../components/Spreadsheet";
 import { fetchMatchById, selectMatchById } from "../store/slices/matchesSlice";
+import { addNewPlayerAction } from "../store/slices/spreadsheetsSlice";
+
+const actions = [
+  "Point",
+  "Caught",
+  "Short",
+  "Mistake",
+  "1st",
+  "2nd",
+  "Drop",
+  "Gap",
+];
 
 function TrackerView() {
   const { matchId, third } = useParams();
@@ -16,17 +35,6 @@ function TrackerView() {
   let intThird = parseInt(third);
   if (intThird < 1) intThird = 1;
   if (intThird > 3) intThird = 3;
-
-  const actions = [
-    { name: "Point", onClick: () => console.log("Point") },
-    { name: "Caught", onClick: () => console.log("Caught") },
-    { name: "Short", onClick: () => console.log("Short") },
-    { name: "Mistake", onClick: () => console.log("Mistake") },
-    { name: "1st", onClick: () => console.log("1st") },
-    { name: "2nd", onClick: () => console.log("2nd") },
-    { name: "Drop", onClick: () => console.log("Drop") },
-    { name: "Gap", onClick: () => console.log("Gap") },
-  ];
 
   useEffect(() => {
     if (matchStatus === "idle" && !match) {
@@ -54,6 +62,17 @@ function TrackerView() {
     }
   };
 
+  const addAction = (action) => {
+    dispatch(
+      addNewPlayerAction({
+        id: thirdIDCalculator(),
+        player: selectedPlayer,
+        value: 1,
+        action: action.toLowerCase(),
+      })
+    );
+  };
+
   return (
     <>
       <CssBaseline />
@@ -66,7 +85,9 @@ function TrackerView() {
 
         {match?.thirds && (
           <Box sx={{ mb: 4 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
+            >
               <Button
                 variant="contained"
                 disabled={intThird === 1}
@@ -96,7 +117,7 @@ function TrackerView() {
                 Action for: {selectedPlayer}
               </Typography>
             </div>
-            <ActionButtonGrid buttons={actions} />
+            <ActionButtonGrid buttons={actions} onClick={addAction} />
           </Card>
         )}
       </Container>

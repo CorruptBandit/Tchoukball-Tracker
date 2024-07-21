@@ -11,6 +11,7 @@ type Match struct {
 	Name      string                        `json:"name" bson:"name"`
 	Thirds    map[string]primitive.ObjectID `json:"thirds" bson:"thirds"`
 	CreatedAt time.Time                     `json:"created_at" bson:"created_at"`
+	Players   []string                      `json:"players,omitempty" bson:"-"`
 }
 
 // CollectionName implements MongoModel.

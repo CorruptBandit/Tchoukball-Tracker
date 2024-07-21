@@ -67,6 +67,7 @@ import {
         "/api/matches",
         {
           name: payload.name,
+          players: payload.players
         }
       );
       return response.json();

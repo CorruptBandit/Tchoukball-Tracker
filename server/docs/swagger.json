@@ -9,207 +9,6 @@
     "host": "localhost:8080",
     "basePath": "/",
     "paths": {
-        "/graphs": {
-            "get": {
-                "description": "get all graphs from the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "graphs"
-                ],
-                "summary": "Retrieve all graphs",
-                "responses": {
-                    "200": {
-                        "description": "List of graphs",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.Graph"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/models.HTTPError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "create a new graph with the provided details",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "graphs"
-                ],
-                "summary": "Create a new graph",
-                "parameters": [
-                    {
-                        "description": "Graph Info",
-                        "name": "graph",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Graph"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Successfully created",
-                        "schema": {
-                            "$ref": "#/definitions/models.Graph"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request - invalid JSON",
-                        "schema": {
-                            "$ref": "#/definitions/models.HTTPError"
-                        }
-                    },
-                    "422": {
-                        "description": "Bad request - missing element",
-                        "schema": {
-                            "$ref": "#/definitions/models.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/models.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/graphs/{id}": {
-            "get": {
-                "description": "get graph by ID from the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "graphs"
-                ],
-                "summary": "Retrieve a graph by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Graph ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Graph retrieved",
-                        "schema": {
-                            "$ref": "#/definitions/models.Graph"
-                        }
-                    },
-                    "404": {
-                        "description": "Graph not found",
-                        "schema": {
-                            "$ref": "#/definitions/models.HTTPError"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "update details of a graph by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "graphs"
-                ],
-                "summary": "Update a graph",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Graph ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Graph info",
-                        "name": "graph",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Graph"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Graph updated",
-                        "schema": {
-                            "$ref": "#/definitions/models.Graph"
-                        }
-                    },
-                    "404": {
-                        "description": "Graph not found",
-                        "schema": {
-                            "$ref": "#/definitions/models.HTTPError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "delete a graph by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "graphs"
-                ],
-                "summary": "Delete a graph",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Graph ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully deleted",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Graph not found",
-                        "schema": {
-                            "$ref": "#/definitions/models.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
         "/matches": {
             "get": {
                 "description": "get all matches from the database",
@@ -611,23 +410,171 @@
                     }
                 }
             }
+        },
+        "/spreadsheets/{id}/player": {
+            "post": {
+                "description": "create a new spreadsheet with the provided details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "spreadsheets"
+                ],
+                "summary": "Create a new spreadsheet",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Spreadsheet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Spreadsheet Info",
+                        "name": "spreadsheet",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Player"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Spreadsheet"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid JSON",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTPError"
+                        }
+                    },
+                    "422": {
+                        "description": "Bad request - missing element",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/spreadsheets/{id}/player/{player}/action": {
+            "post": {
+                "description": "create a new action for the player",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "spreadsheets"
+                ],
+                "summary": "Create a new player action",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Spreadsheet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Player name",
+                        "name": "player",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Action Info",
+                        "name": "spreadsheet",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PlayerAction"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Player"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request - invalid JSON",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Failed to find player",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTPError"
+                        }
+                    },
+                    "422": {
+                        "description": "Bad request - missing element",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTPError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "models.Graph": {
+        "models.Attacking": {
             "type": "object",
             "properties": {
-                "datasource": {
-                    "type": "string"
+                "caught": {
+                    "type": "integer"
                 },
-                "graphType": {
-                    "type": "string"
+                "mistake": {
+                    "type": "integer"
                 },
-                "id": {
-                    "type": "string"
+                "point": {
+                    "type": "integer"
                 },
-                "name": {
-                    "type": "string"
+                "short": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Defending": {
+            "type": "object",
+            "properties": {
+                "drop": {
+                    "type": "integer"
+                },
+                "first": {
+                    "type": "integer"
+                },
+                "gap": {
+                    "type": "integer"
+                },
+                "second": {
+                    "type": "integer"
                 }
             }
         },
@@ -645,11 +592,20 @@
         "models.Match": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
                 "name": {
                     "type": "string"
+                },
+                "players": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "thirds": {
                     "type": "object",
@@ -659,18 +615,45 @@
                 }
             }
         },
+        "models.Player": {
+            "type": "object",
+            "properties": {
+                "attacking": {
+                    "$ref": "#/definitions/models.Attacking"
+                },
+                "defending": {
+                    "$ref": "#/definitions/models.Defending"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PlayerAction": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.Spreadsheet": {
             "type": "object",
             "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {}
-                },
                 "id": {
                     "type": "string"
                 },
                 "name": {
                     "type": "string"
+                },
+                "players": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Player"
+                    }
                 }
             }
         }
