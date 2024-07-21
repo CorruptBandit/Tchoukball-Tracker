@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"os"
 	"time"
 
 	"github.com/Tchoukball-Tracker/pkg/logger"
@@ -24,10 +25,16 @@ func NewMongoDatabase() *MongoDB {
 }
 
 func (mdb *MongoDB) Connect(connection string, dbName string) error {
-	tlsConfig := tls.Config{
-		InsecureSkipVerify: true,
+	var clientOptions *options.ClientOptions
+	if os.Getenv("GIN_MODE") == "development" {
+		logger.Log.Info("Disabling Secure TLS for Development")
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: true, // This disables both certificate and hostname validation
+		}
+		clientOptions = options.Client().ApplyURI(connection).SetTLSConfig(tlsConfig)
+	} else {
+		clientOptions = options.Client().ApplyURI(connection)
 	}
-	clientOptions := options.Client().ApplyURI(connection).SetTLSConfig(&tlsConfig)
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 

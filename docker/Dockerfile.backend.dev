@@ -1,21 +1,45 @@
-# Build go executable
+# Build stage for the Go executable
 FROM golang:1.22 as builder
 
-# Set the Current Working Directory inside the container
+ENV PATH="/usr/bin:${PATH}"
+
+# Install Air
+RUN go install github.com/cosmtrek/air@v1.29.0
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy go mod and sum files
+# Copy go.mod and go.sum files first
 COPY go.mod go.sum ./
 
-# Download and verify go dependencies
-RUN go mod download && go mod verify
+# Download all dependencies
+RUN go mod download
 
-# Install air for live reloading
-RUN go install github.com/air-verse/air@latest
-RUN air init
+# Copy the source code into the container
+COPY . .
 
-# Expose the port that your application listens on (adjust as needed)
+# Build the Go binary
+RUN CGO_ENABLED=0 GOOS=linux go build -o backend .
+
+# # Final stage to run the application
+# FROM golang:1.22 as runner
+
+# # Set the working directory inside the container
+# WORKDIR /app
+
+# # Install necessary packages
+# RUN go install github.com/go-swagger/go-swagger/cmd/swagger@latest
+
+# # Copy the binary and Air from the builder stage
+# COPY --from=builder /go/bin/air /usr/bin/air
+# COPY --from=builder /app/backend /app/backend
+
+# # Copy the source code for hot reloading
+# COPY . .
+
+# Expose the port your app runs on
 EXPOSE 8080
 
-# Command to run air
-CMD ["air", "-c", ".air.toml" ]
+# Command to run the Air tool
+CMD ["air"]

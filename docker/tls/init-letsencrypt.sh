@@ -84,6 +84,13 @@ docker compose run --rm --entrypoint "\
     --force-renewal" certbot
 echo
 
+# Create ca cert
+curl -O https://letsencrypt.org/certs/isrgrootx1.pem
+curl -O https://letsencrypt.org/certs/lets-encrypt-r3.pem
+cat isrgrootx1.pem lets-encrypt-r3.pem > "${SCRIPT_DIR}/data/mongo/ca.pem"
+chmod 644 "${SCRIPT_DIR}/data/mongo/ca.pem"
+rm "lets-encrypt-r3.pem" && rm "isrgrootx1.pem"
+
 # Create mongo cert
 cat "${SCRIPT_DIR}/data/certbot/conf/live/tchoukballtracker.co.uk/fullchain.pem" "${SCRIPT_DIR}/data/certbot/conf/live/tchoukballtracker.co.uk/privkey.pem" > "${SCRIPT_DIR}/data/mongo/mongodb.pem"
 chmod 644 "${SCRIPT_DIR}/data/mongo/mongodb.pem"
