@@ -32,7 +32,7 @@ func main() {
 		os.Getenv("TLS_CERT_FILE"),
 		os.Getenv("TLS_CA_FILE"))
 
-	if err := database.Connect(connectionString, "DashboardCreator"); err != nil {
+	if err := database.Connect(connectionString, "Tchoukball"); err != nil {
 		logger.Log.Fatalf("Failed to connect to database: %v", err)
 	}
 
@@ -42,7 +42,7 @@ func main() {
 
 	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	handlers.RegisterSpreadsheetRoutes(router.Group("/spreadsheets"))
-	handlers.RegisterLoginRoutes(router.Group("/login"))
+	handlers.RegisterAuthRoutes(router.Group("/login"))
 
 	logger.Log.Info("Starting the server on port" + os.Getenv("SERVER_PORT"))
 	if err := router.Run(":" + os.Getenv("SERVER_PORT")); err != nil {

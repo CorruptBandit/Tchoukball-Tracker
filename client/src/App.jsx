@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { BrowserRouter as Router, Route, Routes, Navigate, Outlet } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchUser } from './store/slices/userSlice'; // Adjust the path as necessary
-import { fetchSettings, fetchSettingGroups } from './store/slices/settingsSlice'; // Adjust the path as necessary
 import ExcelUpload from './components/ExcelUpload'; // Adjust the path as necessary
 import SpreadsheetViewer from './components/SpreadsheetViewer'; // Adjust the path as necessary
 import Login from './pages/Login'; // Adjust the path as necessary
@@ -37,17 +36,17 @@ const ProtectedRoute = ({ routeName }) => {
   const settingsStatus = useSelector((state) => state.settings.status);
   const settingGroupsStatus = useSelector((state) => state.settings.settingGroups.status);
 
-  useEffect(() => {
-    if (settingsStatus === 'idle') {
-      dispatch(fetchSettings());
-    }
-  }, [settingsStatus, dispatch]);
+  // useEffect(() => {
+  //   if (settingsStatus === 'idle') {
+  //     dispatch(fetchSettings());
+  //   }
+  // }, [settingsStatus, dispatch]);
 
-  useEffect(() => {
-    if (settingGroupsStatus === 'idle') {
-      dispatch(fetchSettingGroups());
-    }
-  }, [settingGroupsStatus, dispatch]);
+  // useEffect(() => {
+  //   if (settingGroupsStatus === 'idle') {
+  //     dispatch(fetchSettingGroups());
+  //   }
+  // }, [settingGroupsStatus, dispatch]);
 
   if (checkTokenStatus()) {
     const userRole = JSON.parse(atob(token.split('.')[1])).role;

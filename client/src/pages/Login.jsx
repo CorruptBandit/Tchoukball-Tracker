@@ -1,7 +1,6 @@
 import { useContext, useState } from 'react';
-import { useDispatch } from 'react-redux';
+// import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchSettings } from '../store/slices/settingsSlice';
 // import {
 //   fetchUserPreferences,
 //   updateUserPreferences
@@ -24,7 +23,7 @@ import {
 import { AuthContext } from '../App';
 
 export default function LoginView() {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
   const { setIsLoggedIn } = useContext(AuthContext);
 
@@ -79,7 +78,7 @@ export default function LoginView() {
               setUsername('');
               setPassword('');
               setIsLoggedIn(true);
-              dispatch(fetchSettings());
+              // dispatch(fetchSettings());
 
               // dispatch(fetchUserPreferences(data.auth_token)).then(
               //   (preferencesResponse) => {
@@ -104,7 +103,7 @@ export default function LoginView() {
               } else if (data.user.role === 'Questioner') {
                 navigate('/questioner-navigation');
               } else {
-                navigate('/outcomes');
+                navigate('/');
               }
 
               setLoginRequestStatus('idle');
@@ -131,10 +130,10 @@ export default function LoginView() {
   };
 
   return (
-    <div className="flex justify-center">
+    <div style={styles.container}>
       <Card
         sx={{ p: 6, mx: 6, my: 12 }}
-        className="lg:w-2/5 md:w-1/2 sm:w-3/5"
+        style={styles.card}
         raised>
         <form className="LoginView" onSubmit={handleLogin}>
           <Typography
@@ -217,8 +216,8 @@ export default function LoginView() {
             className="flex"
             style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
             {(
-              process.env.REACT_APP_REGISTER_TYPE === 'verify' ||
-              process.env.REACT_APP_REGISTER_TYPE === 'open'
+              import.meta.env.REACT_APP_REGISTER_TYPE === 'verify' ||
+              import.meta.env.REACT_APP_REGISTER_TYPE === 'open'
             ) && (
               <div className="flex">
                 <Typography sx={{ fontSize: '0.875rem' }}>
@@ -251,3 +250,19 @@ export default function LoginView() {
     </div>
   );
 }
+
+const styles = {
+  container: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100vh',
+    width: '100vw',
+    backgroundColor: '#f0f0f0',
+  },
+  card: {
+    width: '100%',
+    maxWidth: '400px',
+    margin: '0 auto',
+  },
+};
