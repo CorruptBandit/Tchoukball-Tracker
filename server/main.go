@@ -42,7 +42,7 @@ func main() {
 
 	//router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	handlers.RegisterSpreadsheetRoutes(router.Group("/spreadsheets"))
-	handlers.RegisterGraphsRoutes(router.Group("/graphs"))
+	handlers.RegisterLoginRoutes(router.Group("/login"))
 
 	logger.Log.Info("Starting the server on port" + os.Getenv("SERVER_PORT"))
 	if err := router.Run(":" + os.Getenv("SERVER_PORT")); err != nil {
