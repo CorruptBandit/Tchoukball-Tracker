@@ -4,7 +4,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 export const login = createAsyncThunk(
   'users/login',
   async (payload) => {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch('/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -18,25 +18,6 @@ export const login = createAsyncThunk(
 
     if (!response.ok) {
       throw new Error('Login request failed');
-    }
-
-    return response.json();
-  }
-);
-
-// Thunk for fetching the current user
-export const fetchUser = createAsyncThunk(
-  'users/fetchUser',
-  async (auth_token) => {
-    const response = await fetch('/api/auth/user', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${auth_token}`
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error('Fetch user request failed');
     }
 
     return response.json();
@@ -63,17 +44,6 @@ const usersSlice = createSlice({
         state.user = action.payload.data;
       })
       .addCase(login.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
-      })
-      .addCase(fetchUser.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(fetchUser.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.user = action.payload.data;
-      })
-      .addCase(fetchUser.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       });

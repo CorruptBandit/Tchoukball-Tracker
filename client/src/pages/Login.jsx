@@ -78,6 +78,10 @@ export default function LoginView() {
               setUsername('');
               setPassword('');
               setIsLoggedIn(true);
+
+              // set token in cookie
+
+              
               // dispatch(fetchSettings());
 
               // dispatch(fetchUserPreferences(data.auth_token)).then(

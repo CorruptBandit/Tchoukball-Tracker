@@ -16,50 +16,42 @@ import (
 var jwtKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 
 func RegisterAuthRoutes(router *gin.RouterGroup) {
-	router.POST("", Login)
+	router.POST("", login)
 }
 
-// LoginRequest represents the payload for the login request
 type LoginRequest struct {
 	Username     string `json:"username"`
 	Password     string `json:"password"`
 	KeepLoggedIn bool   `json:"keep_logged_in"`
 }
 
-// Claims struct to hold JWT claims
-type Claims struct {
-	Username string `json:"username"`
-	jwt.RegisteredClaims
-}
-
 // Login handles the login process
-func Login(c *gin.Context) {
-	var loginReq LoginRequest
-	if err := c.ShouldBindJSON(&loginReq); err != nil {
+func login(c *gin.Context) {
+	var loginRequest LoginRequest
+	if err := c.ShouldBindJSON(&loginRequest); err != nil {
 		c.JSON(http.StatusBadRequest, models.HTTPError{Code: http.StatusBadRequest, Message: "Invalid request"})
 		return
 	}
 
 	// Find user by username
-	dbUser := &models.DBUser{Username: loginReq.Username}
-	result, err := database.FindByValue(c.Request.Context(), dbUser, map[string]interface{}{"username": loginReq.Username})
-	if err != nil || len(result) == 0 {
+	result, err := database.FindByName(c.Request.Context(), &models.User{}, loginRequest.Username)
+	if err != nil {
 		c.JSON(http.StatusUnauthorized, models.HTTPError{Code: http.StatusUnauthorized, Message: "Invalid username or password"})
 		return
 	}
 
-	user := result[0].(*models.DBUser)
+	user := result.(*models.User)
 
 	// Compare passwords
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginReq.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password)); err != nil {
 		c.JSON(http.StatusUnauthorized, models.HTTPError{Code: http.StatusUnauthorized, Message: "Invalid username or password"})
 		return
 	}
 
 	// Set token expiration time
-	expirationTime := time.Now().Add(24 * time.Hour) // 24-hour token validity
-	claims := &Claims{
-		Username: user.Username,
+	expirationTime := time.Now().Add(168 * time.Hour) // 7-day token validity
+	claims := &models.Claims{
+		Username: user.Name,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
@@ -75,6 +67,5 @@ func Login(c *gin.Context) {
 
 	// Set the JWT token as an HTTP-only cookie
 	c.SetCookie("auth_token", tokenString, int(expirationTime.Unix()-time.Now().Unix()), "/", "", false, true)
-
-	c.JSON(http.StatusOK, gin.H{"status": "success", "auth_token": tokenString, "user": user.ToDomain()})
+	c.JSON(http.StatusOK, user)
 }
