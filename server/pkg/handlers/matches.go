@@ -76,7 +76,7 @@ func createMatch(c *gin.Context) {
 		newMatch.Thirds = make(map[string]primitive.ObjectID)
 	}
 
-	var players []*models.Player
+	var players []*models.Player = make([]*models.Player, 0)
 	for _, player := range newMatch.Players {
 		players = append(players, &models.Player{
 			Name: player,
