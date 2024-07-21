@@ -42,12 +42,13 @@ services:
       dockerfile: ../docker/Dockerfile.backend.dev
     ports:
       - "8080:8080"
-    volumes:  # Mounts configuration files and SSL certificates for MongoDB.
+    volumes:
       - ./docker/tls/data/mongo/mongodb.pem:/etc/ssl/mongodb.pem
       - ./docker/tls/data/mongo/ca.pem:/etc/ssl/ca.pem
       - ./server:/app
       - .env:/app/.env
-    depends_on: 
+      - ./server/:/app
+    depends_on:
       - mongodb
 
 
