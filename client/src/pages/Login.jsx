@@ -21,9 +21,12 @@ import {
   Typography
 } from '@mui/material';
 import { AuthContext } from '../App';
+import { response } from 'express';
+import { useDispatch } from 'react-redux';
+import { login } from '../store/slices/usersSlice';
 
 export default function LoginView() {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { setIsLoggedIn } = useContext(AuthContext);
 
@@ -55,29 +58,25 @@ export default function LoginView() {
     if (canLogin) {
       let isMounted = true;
       setErrorMessage('');
-      try {
-        setLoginRequestStatus('pending');
-        let payload = {
-          username: username,
-          password: password,
-          keep_logged_in: keepLoggedIn
-        };
+      setLoginRequestStatus('pending');
+      let payload = {
+        username: username,
+        password: password,
+        keep_logged_in: keepLoggedIn
+      }
+        
 
-        const response = await fetch('/api/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.status === 'success' && data.auth_token) {
-            if (isMounted) {
-              setUsername('');
-              setPassword('');
-              setIsLoggedIn(true);
+        await dispatch(login(payload)).unwrap().then((response) => {
+          if (response.ok) {
+            const data = response.json();
+                setUsername('');
+                setPassword('');
+                setIsLoggedIn(true);
+                console.log(data)
+            }
+          }
+        )}
+    };
 
               // set token in cookie
 
@@ -102,36 +101,35 @@ export default function LoginView() {
               //  }
               //);
 
-              if (data.user.role === 'OutcomeOwner') {
-                navigate('/outcome-owner-navigation');
-              } else if (data.user.role === 'Questioner') {
-                navigate('/questioner-navigation');
-              } else {
-                navigate('/');
-              }
+    //           if (data.user.role === 'OutcomeOwner') {
+    //             navigate('/outcome-owner-navigation');
+    //           } else if (data.user.role === 'Questioner') {
+    //             navigate('/questioner-navigation');
+    //           } else {
+    //             navigate('/');
+    //           }
 
-              setLoginRequestStatus('idle');
-              isMounted = false;
-            }
-          } else {
-            throw new Error('Failed to login.');
-          }
-        } else {
-          throw new Error('Login request failed.');
-        }
-      } catch (err) {
-        setErrorMessage(`Failed to login: ${err.message}`);
-        setLoginRequestStatus('idle');
-        isMounted = false;
-      }
-    } else if (!username || !password) {
-      setErrorMessage(
-        'Please ensure you enter a username and password before trying to login.'
-      );
-    } else {
-      setErrorMessage('Failed to login.');
-    }
-  };
+    //           setLoginRequestStatus('idle');
+    //           isMounted = false;
+    //         }
+    //       } else {
+    //         throw new Error('Failed to login.');
+    //       }
+    //     } else {
+    //       throw new Error('Login request failed.');
+    //     }
+    //   } catch (err) {
+    //     setErrorMessage(`Failed to login: ${err.message}`);
+    //     setLoginRequestStatus('idle');
+    //     isMounted = false;
+    //   }
+    // } else if (!username || !password) {
+    //   setErrorMessage(
+    //     'Please ensure you enter a username and password before trying to login.'
+    //   );
+    // } else {
+    //   setErrorMessage('Failed to login.');
+    // }
 
   return (
     <div style={styles.container}>

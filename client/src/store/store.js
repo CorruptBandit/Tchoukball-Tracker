@@ -3,12 +3,14 @@ import settingsReducer from './slices/settingsSlice'
 import dashboardsReducer from './slices/dashboardsSlice'
 import componentsReducer from './slices/componentsSlice';
 import livedataReducer from './slices/liveDataSlice'
+import usersReducer from './slices/usersSlice'
 
 export default configureStore({
   reducer: {
     settings: settingsReducer,
     dashboards: dashboardsReducer,
     components: componentsReducer,
-    livedata: livedataReducer
+    livedata: livedataReducer,
+    users: usersReducer
   }
 });

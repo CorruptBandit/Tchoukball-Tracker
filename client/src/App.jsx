@@ -2,7 +2,6 @@ import React, { useState, useEffect, createContext } from 'react';
 import PropTypes from 'prop-types';
 import { BrowserRouter as Router, Route, Routes, Navigate, Outlet } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUser } from './store/slices/userSlice'; // Adjust the path as necessary
 import ExcelUpload from './components/ExcelUpload'; // Adjust the path as necessary
 import SpreadsheetViewer from './components/SpreadsheetViewer'; // Adjust the path as necessary
 import Login from './pages/Login'; // Adjust the path as necessary
@@ -62,32 +61,16 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    async function getUserData() {
-      if (!checkTokenStatus()) {
-        localStorage.removeItem('auth_token');
-        setIsLoggedIn(false);
-        return;
-      }
+  // useEffect(() => {
+  //   const token = localStorage.getItem('auth_token');
+  //   async function getUserData() {
+  //     if (!checkTokenStatus()) {
+  //       localStorage.removeItem('auth_token');
+  //       setIsLoggedIn(false);
+  //       return;
 
-      try {
-        const data = await dispatch(fetchUser(token)).unwrap();
-        if (data.status === 'success') {
-          setIsLoggedIn(true);
-        } else {
-          localStorage.removeItem('auth_token');
-          setIsLoggedIn(false);
-        }
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
-        localStorage.removeItem('auth_token');
-        setIsLoggedIn(false);
-      }
-    }
-
-    getUserData();
-  }, [dispatch]);
+  //   getUserData();
+  // }, [dispatch]);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn }}>
