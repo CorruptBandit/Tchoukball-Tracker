@@ -68,6 +68,6 @@ func login(c *gin.Context) {
 	}
 
 	// Set the JWT token as an HTTP-only cookie
-	c.SetCookie("auth_token", tokenString, int(expirationTime.Unix()-time.Now().Unix()), "/", "", false, true)
+	c.SetCookie("auth_token", tokenString, int(expirationTime.Unix()-time.Now().Unix()), "/", "", false, false)
 	c.JSON(http.StatusOK, models.HTTPSuccess{Code: http.StatusOK, Message: "Logged in as: " + user.Name})
 }
