@@ -5,9 +5,6 @@ import { useDispatch } from 'react-redux';
 import ExcelUpload from './components/ExcelUpload'; // Adjust the path as necessary
 import SpreadsheetViewer from './components/SpreadsheetViewer'; // Adjust the path as necessary
 import Login from './pages/Login'; // Adjust the path as necessary
-import { Route, Routes } from "react-router-dom";
-import ExcelUpload from './components/ExcelUpload';
-import SpreadsheetViewer from './components/SpreadsheetViewer';
 import TrackerView from "./pages/TrackerView";
 import MatchesView from "./pages/MatchesView";
 import PageNotFound from "./pages/PageNotFound";
@@ -35,8 +32,6 @@ const userRouteAccess = {
   outcomeOwner: ['upload', 'view'],
   observer: ['view']
 };
-
-const PageNotFound = () => <div>Page Not Found</div>;
 
 const ProtectedRoute = ({ routeName }) => {
   const dispatch = useDispatch();

@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { dashboardAPI } from "../DashboardAPI";
+import { trackerAPI } from '../TrackerAPI';
 
 // Thunk for user login
 export const login = createAsyncThunk(
   'users/login',
   async (payload) => {
-    const response = await dashboardAPI.post('/api/login',
+    const response = await trackerAPI.post('/api/login',
       {
         username: payload.username,
         password: payload.password,
