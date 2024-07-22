@@ -1,0 +1,45 @@
+# Build stage for the Go executable
+FROM golang:1.22 as builder
+
+ENV PATH="/usr/bin:${PATH}"
+
+# Install Air
+RUN go install github.com/cosmtrek/air@v1.29.0
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy go.mod and go.sum files first
+COPY go.mod go.sum ./
+
+# Download all dependencies
+RUN go mod download
+
+# Copy the source code into the container
+COPY . .
+
+# Build the Go binary
+RUN CGO_ENABLED=0 GOOS=linux go build -o backend .
+
+# # Final stage to run the application
+# FROM golang:1.22 as runner
+
+# # Set the working directory inside the container
+# WORKDIR /app
+
+# # Install necessary packages
+# RUN go install github.com/go-swagger/go-swagger/cmd/swagger@latest
+
+# # Copy the binary and Air from the builder stage
+# COPY --from=builder /go/bin/air /usr/bin/air
+# COPY --from=builder /app/backend /app/backend
+
+# # Copy the source code for hot reloading
+# COPY . .
+
+# Expose the port your app runs on
+EXPOSE 8080
+
+# Command to run the Air tool
+CMD ["air"]

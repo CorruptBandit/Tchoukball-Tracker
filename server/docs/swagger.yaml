@@ -1,0 +1,436 @@
+basePath: /
+definitions:
+  models.Attacking:
+    properties:
+      caught:
+        type: integer
+      mistake:
+        type: integer
+      point:
+        type: integer
+      short:
+        type: integer
+    type: object
+  models.Defending:
+    properties:
+      drop:
+        type: integer
+      first:
+        type: integer
+      gap:
+        type: integer
+      second:
+        type: integer
+    type: object
+  models.HTTPError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  models.Match:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      players:
+        items:
+          type: string
+        type: array
+      thirds:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  models.Player:
+    properties:
+      attacking:
+        $ref: '#/definitions/models.Attacking'
+      defending:
+        $ref: '#/definitions/models.Defending'
+      name:
+        type: string
+    type: object
+  models.PlayerAction:
+    properties:
+      type:
+        type: string
+      value:
+        type: integer
+    type: object
+  models.Spreadsheet:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      players:
+        items:
+          $ref: '#/definitions/models.Player'
+        type: array
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Tchoukball Tracker API documentation.
+  title: Tchoukball Tracker API
+  version: "1.0"
+paths:
+  /matches:
+    get:
+      consumes:
+      - application/json
+      description: get all matches from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of matches
+          schema:
+            items:
+              $ref: '#/definitions/models.Match'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Retrieve all matches
+      tags:
+      - matches
+    post:
+      consumes:
+      - application/json
+      description: create a new match with the provided details
+      parameters:
+      - description: Match Info
+        in: body
+        name: match
+        required: true
+        schema:
+          $ref: '#/definitions/models.Match'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Match'
+        "400":
+          description: Bad request - invalid JSON
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "422":
+          description: Bad request - missing element
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Create a new match
+      tags:
+      - matches
+  /matches/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a match by ID
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted
+          schema:
+            type: string
+        "404":
+          description: Match not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Delete a match
+      tags:
+      - matches
+    get:
+      consumes:
+      - application/json
+      description: get match by ID from the database
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Match retrieved
+          schema:
+            $ref: '#/definitions/models.Match'
+        "404":
+          description: Match not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Retrieve a match by ID
+      tags:
+      - matches
+    put:
+      consumes:
+      - application/json
+      description: update details of a match by ID
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Match info
+        in: body
+        name: match
+        required: true
+        schema:
+          $ref: '#/definitions/models.Match'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Match updated
+          schema:
+            $ref: '#/definitions/models.Match'
+        "404":
+          description: Match not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Update a match
+      tags:
+      - matches
+  /spreadsheets:
+    get:
+      consumes:
+      - application/json
+      description: get all spreadsheets from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of spreadsheets
+          schema:
+            items:
+              $ref: '#/definitions/models.Spreadsheet'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Retrieve all spreadsheets
+      tags:
+      - spreadsheets
+    post:
+      consumes:
+      - application/json
+      description: create a new spreadsheet with the provided details
+      parameters:
+      - description: Spreadsheet Info
+        in: body
+        name: spreadsheet
+        required: true
+        schema:
+          $ref: '#/definitions/models.Spreadsheet'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Spreadsheet'
+        "400":
+          description: Bad request - invalid JSON
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "422":
+          description: Bad request - missing element
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Create a new spreadsheet
+      tags:
+      - spreadsheets
+  /spreadsheets/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete a spreadsheet by ID
+      parameters:
+      - description: Spreadsheet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted
+          schema:
+            type: string
+        "404":
+          description: Spreadsheet not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Delete a spreadsheet
+      tags:
+      - spreadsheets
+    get:
+      consumes:
+      - application/json
+      description: get spreadsheet by ID from the database
+      parameters:
+      - description: Spreadsheet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Spreadsheet retrieved
+          schema:
+            $ref: '#/definitions/models.Spreadsheet'
+        "404":
+          description: Spreadsheet not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Retrieve a spreadsheet by ID
+      tags:
+      - spreadsheets
+    put:
+      consumes:
+      - application/json
+      description: update details of a spreadsheet by ID
+      parameters:
+      - description: Spreadsheet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Spreadsheet info
+        in: body
+        name: spreadsheet
+        required: true
+        schema:
+          $ref: '#/definitions/models.Spreadsheet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Spreadsheet updated
+          schema:
+            $ref: '#/definitions/models.Spreadsheet'
+        "404":
+          description: Spreadsheet not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Update a spreadsheet
+      tags:
+      - spreadsheets
+  /spreadsheets/{id}/player:
+    post:
+      consumes:
+      - application/json
+      description: create a new spreadsheet with the provided details
+      parameters:
+      - description: Spreadsheet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Spreadsheet Info
+        in: body
+        name: spreadsheet
+        required: true
+        schema:
+          $ref: '#/definitions/models.Player'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Spreadsheet'
+        "400":
+          description: Bad request - invalid JSON
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "422":
+          description: Bad request - missing element
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Create a new spreadsheet
+      tags:
+      - spreadsheets
+  /spreadsheets/{id}/player/{player}/action:
+    post:
+      consumes:
+      - application/json
+      description: create a new action for the player
+      parameters:
+      - description: Spreadsheet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Player name
+        in: path
+        name: player
+        required: true
+        type: string
+      - description: Action Info
+        in: body
+        name: spreadsheet
+        required: true
+        schema:
+          $ref: '#/definitions/models.PlayerAction'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created
+          schema:
+            $ref: '#/definitions/models.Player'
+        "400":
+          description: Bad request - invalid JSON
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "404":
+          description: Failed to find player
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "422":
+          description: Bad request - missing element
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Create a new player action
+      tags:
+      - spreadsheets
+swagger: "2.0"

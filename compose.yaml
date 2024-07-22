@@ -3,7 +3,7 @@
 x-common-settings: &common-settings
   build:
     context: .
-    dockerfile: ./docker/Dockerfile.dev
+    dockerfile: ./docker/Dockerfile.frontend.dev
     args:
       NODE_ENV: ${NODE_ENV:-}
       HOST_UID: ${HOST_UID:-}
@@ -39,17 +39,16 @@ services:
   backend:
     build:
       context: ./server
-      dockerfile: ../docker/Dockerfile.backend.prod
+      dockerfile: ../docker/Dockerfile.backend.dev
     ports:
       - "8080:8080"
-    volumes:  # Mounts configuration files and SSL certificates for MongoDB.
+    volumes:
       - ./docker/tls/data/mongo/mongodb.pem:/etc/ssl/mongodb.pem
       - ./docker/tls/data/mongo/ca.pem:/etc/ssl/ca.pem
+      - ./server:/app
       - .env:/app/.env
     depends_on:
-      - mongodb # Optional, if your backend needs to wait for the Node app to be up
-    # profiles:
-    #   - backend
+      - mongodb
 
 
   # build-frontend:
