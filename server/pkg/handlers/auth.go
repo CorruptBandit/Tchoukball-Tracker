@@ -60,6 +60,12 @@ func login(c *gin.Context) {
 		},
 	}
 
+	// Determine if the environment is set to release mode for HTTPS
+	secure := false
+	if gin.Mode() == gin.ReleaseMode {
+		secure = true
+	}
+
 	// Generate JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtKey)
@@ -68,8 +74,9 @@ func login(c *gin.Context) {
 		return
 	}
 
-	// Set the JWT token as an HTTP-only cookie
-	c.SetCookie("auth_token", tokenString, int(expirationTime.Unix()-time.Now().Unix()), "/", "", false, false)
+	// Set the JWT token as an HTTP-only cookie (XSS) and SameSite (CSRF)
+	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetCookie("auth_token", tokenString, int(expirationTime.Unix()-time.Now().Unix()), "/", "", secure, true)
 	c.JSON(http.StatusOK, models.HTTPSuccess{Code: http.StatusOK, Message: "Logged in as: " + user.Name})
 }
 
