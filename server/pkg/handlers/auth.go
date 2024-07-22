@@ -18,7 +18,7 @@ var jwtKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 
 func RegisterAuthRoutes(router *gin.RouterGroup) {
 	router.POST("", login)
-	router.POST("/jwt", login)
+	router.POST("/jwt", validateToken)
 }
 
 type LoginRequest struct {
@@ -71,4 +71,25 @@ func login(c *gin.Context) {
 	// Set the JWT token as an HTTP-only cookie
 	c.SetCookie("auth_token", tokenString, int(expirationTime.Unix()-time.Now().Unix()), "/", "", false, false)
 	c.JSON(http.StatusOK, models.HTTPSuccess{Code: http.StatusOK, Message: "Logged in as: " + user.Name})
+}
+
+// validateToken checks the validity of the provided JWT token
+func validateToken(c *gin.Context) {
+	tokenString, err := c.Cookie("auth_token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, models.HTTPError{Code: http.StatusUnauthorized, Message: "No token found"})
+		return
+	}
+
+	claims := &models.Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
+	})
+
+	if err != nil || !token.Valid {
+		c.JSON(http.StatusUnauthorized, models.HTTPError{Code: http.StatusUnauthorized, Message: "Invalid token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"valid": true})
 }

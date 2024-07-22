@@ -39,7 +39,6 @@ const AuthProvider = ({ children }) => {
       try {
         await dispatch(checkJWT()).unwrap();
         setIsLoggedIn(true);
-        navigate("/");
       } catch (error) {
         console.error("Failed to authenticate:", error);
         setIsLoggedIn(false);

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/Tchoukball-Tracker/pkg/database"
+	middleware "github.com/Tchoukball-Tracker/pkg/middlewares"
 	"github.com/Tchoukball-Tracker/pkg/models"
 	"github.com/Tchoukball-Tracker/pkg/utils"
 	"github.com/gin-gonic/gin"
@@ -13,11 +14,11 @@ import (
 
 // RegisterRoutes registers match-related routes in the provided router group.
 func RegisterMatchesRoutes(router *gin.RouterGroup) {
-	router.GET("", getAllMatches)
-	router.POST("", createMatch)
-	router.GET("/:id", getMatchByID)
-	router.PUT("/:id", updateMatch)
-	router.DELETE("/:id", deleteMatch)
+	router.GET("", middleware.JWTAuthMiddleware(), getAllMatches)
+	router.POST("", middleware.JWTAuthMiddleware(), createMatch)
+	router.GET("/:id", middleware.JWTAuthMiddleware(), getMatchByID)
+	router.PUT("/:id", middleware.JWTAuthMiddleware(), updateMatch)
+	router.DELETE("/:id", middleware.JWTAuthMiddleware(), deleteMatch)
 }
 
 // getAllMatches retrieves all matches.
