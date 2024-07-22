@@ -18,6 +18,7 @@ var jwtKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 
 func RegisterAuthRoutes(router *gin.RouterGroup) {
 	router.POST("", login)
+	router.POST("/jwt", login)
 }
 
 type LoginRequest struct {

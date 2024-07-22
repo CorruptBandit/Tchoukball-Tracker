@@ -16,47 +16,18 @@ import MatchesView from "./pages/MatchesView";
 import PageNotFound from "./pages/PageNotFound";
 import CreateMatchView from "./pages/CreateMatchView";
 import { createTheme } from "@mui/material";
-import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode"; // Correct import statement
+import { checkJWT } from "./store/slices/usersSlice";
 
 export const AuthContext = createContext();
 
-export const getTokenFromCookies = () => {
-  return Cookies.get("auth_token");
-};
+// const userRouteAccess = {
+//   admin: ["upload", "view"],
+//   moderator: ["view"],
+//   questioner: ["view"],
+//   outcomeOwner: ["upload", "view"],
+//   observer: ["view"],
+// };
 
-export const checkTokenStatus = () => {
-  const token = getTokenFromCookies();
-  console.log(token)
-  if (!token) {
-    return false;
-  }
-  const decodedToken = jwtDecode(token);
-  const tokenExp = decodedToken.exp;
-  const now = new Date().getTime() / 1000;
-
-  return now <= tokenExp;
-};
-
-const userRouteAccess = {
-  admin: ["upload", "view"],
-  moderator: ["view"],
-  questioner: ["view"],
-  outcomeOwner: ["upload", "view"],
-  observer: ["view"],
-};
-
-const ProtectedRoute = ({ routeName, children }) => {
-  if (!checkTokenStatus()) {
-    return <Navigate to="/login" />;
-  }
-  return children;
-};
-
-ProtectedRoute.propTypes = {
-  routeName: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired,
-};
 
 const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -64,18 +35,18 @@ const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function getUserData() {
-      const token = getTokenFromCookies();
-      if (!checkTokenStatus()) {
-        console.log("Bad");
-        Cookies.remove("auth_token");
+    const getUserData = async () => {
+      try {
+        await dispatch(checkJWT()).unwrap();
+        setIsLoggedIn(true);
+        navigate("/");
+      } catch (error) {
+        console.error("Failed to authenticate:", error);
         setIsLoggedIn(false);
         navigate("/login");
-      } else {
-        console.log("Good");
-        setIsLoggedIn(true);
       }
-    }
+    };
+
     getUserData();
   }, [dispatch, navigate]);
 
@@ -84,6 +55,10 @@ const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 function App() {
@@ -106,17 +81,17 @@ function App() {
           <Route
             path="/upload"
             element={
-              <ProtectedRoute routeName="upload">
+              // <ProtectedRoute routeName="upload">
                 <ExcelUpload />
-              </ProtectedRoute>
+              // { </ProtectedRoute> }
             }
           />
           <Route
             path="/"
             element={
-              <ProtectedRoute routeName="/">
+              // <ProtectedRoute routeName="/">
                 <MatchesView />
-              </ProtectedRoute>
+              // </ProtectedRoute>
             }
           />
           <Route path="/create-match" element={<CreateMatchView />} />

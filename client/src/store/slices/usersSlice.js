@@ -16,6 +16,15 @@ export const login = createAsyncThunk(
   }
 );
 
+
+// Thunk to check JWT status
+export const checkJWT = createAsyncThunk(
+  'users/checkJWT',
+  async () => {
+    const response = await trackerAPI.post('/api/login/jwt');  // Token is automatically sent with cookies
+    return response.json();
+  })
+
 const initialState = {
   user: null,
   status: 'idle',
