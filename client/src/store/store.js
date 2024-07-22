@@ -1,14 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
-import settingsReducer from './slices/settingsSlice'
-import dashboardsReducer from './slices/dashboardsSlice'
-import componentsReducer from './slices/componentsSlice';
-import livedataReducer from './slices/liveDataSlice'
+import spreadsheetsReducer from './slices/spreadsheetsSlice'
+import matchesReducer from './slices/matchesSlice'
+import usersReducer from './slices/usersSlice'
 
 export default configureStore({
   reducer: {
-    settings: settingsReducer,
-    dashboards: dashboardsReducer,
-    components: componentsReducer,
-    livedata: livedataReducer
+    spreadsheets: spreadsheetsReducer,
+    matches: matchesReducer,
+    users: usersReducer
   }
 });

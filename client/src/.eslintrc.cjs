@@ -15,6 +15,8 @@ module.exports = {
     },
     env: {
       es2022: true,
+      "browser": true,
+      "node": true,
     },
     extends: [
       'eslint:recommended',
@@ -23,7 +25,7 @@ module.exports = {
       'react',
     ],
     rules: {
-      'no-unused-vars': 'warn',
+      'no-unused-vars': ['warn', { "argsIgnorePattern": "^_" }],
     },
     overrides: [
       {

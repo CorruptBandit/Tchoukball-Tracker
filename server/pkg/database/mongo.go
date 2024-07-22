@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
+	"errors"
 	"os"
 	"time"
 
@@ -59,9 +59,9 @@ func (mdb *MongoDB) Disconnect() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := mdb.client.Disconnect(ctx); err != nil {
-			fmt.Printf("Error disconnecting from MongoDB: %v\n", err)
+			logger.Log.Error("Error disconnecting from MongoDB: %v\n", err)
 		} else {
-			fmt.Println("Disconnected from MongoDB")
+			logger.Log.Info("Disconnected from MongoDB")
 		}
 	}
 }
@@ -81,7 +81,7 @@ func (mdb *MongoDB) FindAll(ctx context.Context, entity models.DatabaseEntity) (
 	// Create a cursor over all documents
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
-		return nil, err
+		return []models.DatabaseEntity{}, err
 	}
 	defer cursor.Close(ctx)
 
@@ -90,7 +90,7 @@ func (mdb *MongoDB) FindAll(ctx context.Context, entity models.DatabaseEntity) (
 	for cursor.Next(ctx) {
 		elem := entity.New()
 		if err := cursor.Decode(elem); err != nil {
-			return nil, err
+			return results, err
 		}
 		results = append(results, elem)
 	}
@@ -107,7 +107,19 @@ func (mdb *MongoDB) Find(ctx context.Context, entity models.DatabaseEntity) (mod
 func (mdb *MongoDB) FindByName(ctx context.Context, entity models.DatabaseEntity, name string) (models.DatabaseEntity, error) {
 	collection := mdb.db.Collection(entity.CollectionName())
 
-	err := collection.FindOne(ctx, bson.M{"name": name}).Decode(entity)
+	result := collection.FindOne(ctx, bson.M{"name": name})
+	if err := result.Err(); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, errors.New("Failed to find result with this name")
+		}
+
+		return nil, err
+	}
+
+	err := result.Decode(entity)
+	if err != nil {
+		return nil, err
+	}
 	return entity, err
 }
 

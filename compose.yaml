@@ -45,8 +45,8 @@ services:
     volumes:
       - ./docker/tls/data/mongo/mongodb.pem:/etc/ssl/mongodb.pem
       - ./docker/tls/data/mongo/ca.pem:/etc/ssl/ca.pem
+      - ./server:/app
       - .env:/app/.env
-      - ./server/:/app
     depends_on:
       - mongodb
 
