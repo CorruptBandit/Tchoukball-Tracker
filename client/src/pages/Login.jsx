@@ -61,22 +61,21 @@ export default function LoginView() {
         keep_logged_in: keepLoggedIn,
       };
 
-      await dispatch(login(payload))
-        .unwrap()
-        .then(() => {
-            setUsername("");
-            setPassword("");
-            setIsLoggedIn(true);
-            window.location.href = "/";
-        })
-        .catch((error) => {
-          console.log(error)
-          if (error.status === 401) {
-            setErrorMessage("Invalid Credentials");
-          } else {
-            setErrorMessage(error.message || "An unexpected error occurred");
-          }
-        });
+      try {
+        await dispatch(login({ username, password, keep_logged_in: keepLoggedIn }))
+          .unwrap();
+  
+        // Cookie should be set at this point
+        setUsername("");
+        setPassword("");
+        setIsLoggedIn(true);
+  
+        // Use navigate after a slight delay to ensure cookies are set
+        navigate("/")
+      } catch (error) {
+        console.error('Login failed:', error);
+        // Optionally handle login errors here
+      }
     }
   };
 
