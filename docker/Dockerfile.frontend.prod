@@ -2,9 +2,10 @@
 FROM node:20 as node
 WORKDIR /usr/src/app
 COPY ./client .
+COPY package.json package-lock.json .
 RUN npm install
 RUN npm run build
 
 ### NGINX ###
 FROM nginx:1.24.0-alpine
-COPY --from=node /usr/src/app/dist /usr/share/nginx/html
+COPY --from=node /usr/src/dist /usr/share/nginx/html
