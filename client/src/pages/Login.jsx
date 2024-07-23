@@ -67,7 +67,7 @@ export default function LoginView() {
             setUsername("");
             setPassword("");
             setIsLoggedIn(true);
-            navigate("/");
+            window.location.href = "/";
         })
         .catch((error) => {
           console.log(error)
