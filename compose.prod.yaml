@@ -1,13 +1,4 @@
 services:
-  frontend-prod:
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile.frontend.prod
-    ports:
-      - "5173:5173"  # Assuming frontend runs on port 80 in production
-    environment:
-      - NODE_ENV=production
-
   backend-prod:
     build:
       context: ./server
@@ -21,9 +12,14 @@ services:
       - MONGO_HOST=${MONGO_HOST}
       - TLS_CERT_FILE=${TLS_CERT_FILE}
       - TLS_CA_FILE=${TLS_CA_FILE}
+      - TLS_FULLCHAIN_FILE=${TLS_FULLCHAIN_FILE}
+      - TLS_PRIVKEY_FILE=${TLS_PRIVKEY_FILE}
+      - SERVER_PORT=${SERVER_PORT}
     volumes:
       - ./docker/tls/data/mongo/mongodb.pem:/etc/ssl/mongodb.pem
       - ./docker/tls/data/mongo/ca.pem:/etc/ssl/ca.pem
+      - ./docker/tls/data/mongo/privkey.pem:/etc/ssl/privkey.pem
+      - ./docker/tls/data/mongo/fullchain.pem:/etc/ssl/fullchain.pem
     depends_on:
       - mongodb
 
@@ -49,6 +45,9 @@ services:
      done;'
 
   nginx:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.frontend.prod
     image: nginx:1.15-alpine  # Uses NGINX 1.15 on Alpine for a lightweight web server.
     restart: unless-stopped  # Automatically restarts unless explicitly stopped.
     volumes:  # Mounts configuration directories and SSL certificate locations.

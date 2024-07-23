@@ -59,7 +59,13 @@ func main() {
 	handlers.RegisterAuthRoutes(router.Group("/login"))
 
 	logger.Log.Infof("Starting the server on port %s", os.Getenv("SERVER_PORT"))
-	if err := router.Run(":" + os.Getenv("SERVER_PORT")); err != nil {
-		logger.Log.Fatalf("Failed to start the server: %v", err)
+	if os.Getenv("GIN_MODE") != "release" {
+		if err := router.Run(":" + os.Getenv("SERVER_PORT")); err != nil {
+			logger.Log.Fatalf("Failed to start the server: %v", err)
+		}
+	} else {
+		if err := router.RunTLS(":" + os.Getenv("SERVER_PORT"), os.Getenv("TLS_FULLCHAIN_FILE"), os.Getenv("TLS_PRIVKEY_FILE")); err != nil {
+			logger.Log.Fatalf("Failed to start the server: %v", err)
+		}
 	}
 }

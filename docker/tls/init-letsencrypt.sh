@@ -92,6 +92,8 @@ chmod 644 "${SCRIPT_DIR}/data/mongo/ca.pem"
 rm "lets-encrypt-r3.pem" && rm "isrgrootx1.pem"
 
 # Create mongo cert
+cp "${SCRIPT_DIR}/data/certbot/conf/live/tchoukballtracker.co.uk/fullchain.pem" "${SCRIPT_DIR}/data/certs/fullchain.pem"
+cp "${SCRIPT_DIR}/data/certbot/conf/live/tchoukballtracker.co.uk/privkey.pem" "${SCRIPT_DIR}/data/certs/privkey.pem"
 cat "${SCRIPT_DIR}/data/certbot/conf/live/tchoukballtracker.co.uk/fullchain.pem" "${SCRIPT_DIR}/data/certbot/conf/live/tchoukballtracker.co.uk/privkey.pem" > "${SCRIPT_DIR}/data/mongo/mongodb.pem"
 chmod 644 "${SCRIPT_DIR}/data/mongo/mongodb.pem"
 echo "### Stopping nginx ..."
