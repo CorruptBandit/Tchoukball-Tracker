@@ -10,8 +10,7 @@ import {
   Container,
   TextField,
   Pagination,
-  CssBaseline,
-  Card
+  CssBaseline
 } from "@mui/material";
 import { formatDistanceToNow } from "date-fns";
 import { selectAllMatches, fetchMatches } from "../store/slices/matchesSlice";

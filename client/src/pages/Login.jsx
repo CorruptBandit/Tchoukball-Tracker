@@ -1,6 +1,5 @@
 import { useContext, useState } from "react";
 // import { useDispatch } from 'react-redux';
-import { useNavigate } from "react-router-dom";
 // import {
 //   fetchUserPreferences,
 //   updateUserPreferences
@@ -26,7 +25,6 @@ import { login } from "../store/slices/usersSlice";
 
 export default function LoginView() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { setIsLoggedIn } = useContext(AuthContext);
 
   const [username, setUsername] = useState("");
@@ -62,20 +60,26 @@ export default function LoginView() {
       };
 
       await dispatch(login(payload))
-        .then(() => {
+        .then((response) => {
             setUsername("");
             setPassword("");
             setIsLoggedIn(true);
-            window.location.href = "/";
+            if (response.payload.code === 200) {
+              window.location.href = "/";
+            } else {
+              setErrorMessage(response?.error?.message || "An unexpected error occurred");
+            }
         })
         .catch((error) => {
           console.log(error)
           if (error.status === 401) {
             setErrorMessage("Invalid Credentials");
           } else {
-            setErrorMessage(error.message || "An unexpected error occurred");
+            setErrorMessage(error.error.message || "An unexpected error occurred");
           }
         });
+    } else {
+      setErrorMessage("Please enter username & password to login");
     }
   };
 

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/Tchoukball-Tracker/pkg/database"
-	"github.com/Tchoukball-Tracker/pkg/logger"
 	"github.com/Tchoukball-Tracker/pkg/models"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
@@ -38,8 +37,7 @@ func login(c *gin.Context) {
 	// Find user by username
 	result, err := database.FindByName(c.Request.Context(), &models.User{}, loginRequest.Username)
 	if err != nil {
-		logger.Log.Error(err)
-		c.JSON(http.StatusUnauthorized, models.HTTPError{Code: http.StatusUnauthorized, Message: "Invalid username or password"})
+		c.JSON(http.StatusNotFound, models.HTTPError{Code: http.StatusNotFound, Message: "Failed to find username"})
 		return
 	}
 
