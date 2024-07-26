@@ -1,10 +1,9 @@
-import React, { useState, useEffect, createContext } from "react";
+import { useState, useEffect, createContext } from "react";
 import PropTypes from "prop-types";
 import {
   BrowserRouter as Router,
   Route,
   Routes,
-  Navigate,
   useNavigate,
 } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -27,7 +26,6 @@ export const AuthContext = createContext();
 //   outcomeOwner: ["upload", "view"],
 //   observer: ["view"],
 // };
-
 
 const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -81,7 +79,7 @@ function App() {
             path="/upload"
             element={
               // <ProtectedRoute routeName="upload">
-                <ExcelUpload />
+              <ExcelUpload />
               // { </ProtectedRoute> }
             }
           />
@@ -89,7 +87,7 @@ function App() {
             path="/"
             element={
               // <ProtectedRoute routeName="/">
-                <MatchesView />
+              <MatchesView />
               // </ProtectedRoute>
             }
           />

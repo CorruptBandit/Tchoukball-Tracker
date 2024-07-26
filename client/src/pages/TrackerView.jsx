@@ -76,15 +76,15 @@ function TrackerView() {
   return (
     <>
       <CssBaseline />
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container maxWidth="md" sx={{ py: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         {match?.name && (
           <Typography variant="h3" component="h1" gutterBottom align="center">
             {match.name} - {thirdFormatter()} Third
           </Typography>
         )}
-
+  
         {match?.thirds && (
-          <Box sx={{ mb: 4 }}>
+          <Box sx={{ mb: 4, width: '100%' }}>
             <Box
               sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
             >
@@ -109,14 +109,12 @@ function TrackerView() {
             />
           </Box>
         )}
-
+  
         {selectedPlayer && (
-          <Card sx={{ mt: 4, p: 3 }}>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <Typography variant="h5" gutterBottom>
-                Action for: {selectedPlayer}
-              </Typography>
-            </div>
+          <Card sx={{ mt: 4, p: 3, width: '100%' }}>
+            <Typography variant="h5" gutterBottom align="center">
+              Action for: {selectedPlayer}
+            </Typography>
             <ActionButtonGrid buttons={actions} onClick={addAction} />
           </Card>
         )}
