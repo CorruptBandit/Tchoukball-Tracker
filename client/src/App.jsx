@@ -1,10 +1,12 @@
 import React, { useState, useEffect, createContext } from "react";
+import NavBar from './components/NavBar';
 import PropTypes from "prop-types";
 import {
   BrowserRouter as Router,
   Route,
   Routes,
   Navigate,
+  useLocation,
   useNavigate,
 } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -33,6 +35,7 @@ const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const getUserData = async () => {
@@ -42,7 +45,7 @@ const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error("Failed to authenticate:", error);
         setIsLoggedIn(false);
-        navigate("/login");
+        navigate("/auth/login");
       }
     };
 
@@ -75,8 +78,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+      <NavBar />
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/auth/login" element={<Login />} />
           <Route
             path="/upload"
             element={

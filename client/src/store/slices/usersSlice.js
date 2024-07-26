@@ -5,7 +5,7 @@ import { trackerAPI } from '../TrackerAPI';
 export const login = createAsyncThunk(
   'users/login',
   async (payload) => {
-    const response = await trackerAPI.post('/api/login',
+    const response = await trackerAPI.post('/api/auth/login',
       {
         username: payload.username,
         password: payload.password,
@@ -16,12 +16,24 @@ export const login = createAsyncThunk(
   }
 );
 
+// Thunk for user logout
+export const logout = createAsyncThunk(
+  'users/logout',
+  async () => {
+    const response = await trackerAPI.post('/api/auth/logout');
+    if (response.ok) {
+      return;
+    } else {
+      throw new Error('Logout failed');
+    }
+  }
+);
 
 // Thunk to check JWT status
 export const checkJWT = createAsyncThunk(
   'users/checkJWT',
   async () => {
-    const response = await trackerAPI.post('/api/login/jwt');  // Token is automatically sent with cookies
+    const response = await trackerAPI.post('/api/auth/jwt');  // Token is automatically sent with cookies
     return response.json();
   })
 
@@ -47,6 +59,10 @@ const usersSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.status = 'idle';
+        state.user = null;
       });
   }
 });
