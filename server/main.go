@@ -56,7 +56,7 @@ func main() {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	handlers.RegisterSpreadsheetsRoutes(router.Group("/spreadsheets"))
 	handlers.RegisterMatchesRoutes(router.Group("/matches"))
-	handlers.RegisterAuthRoutes(router.Group("/login"))
+	handlers.RegisterAuthRoutes(router.Group("/auth"))
 
 	logger.Log.Infof("Starting the server on port %s", os.Getenv("SERVER_PORT"))
 	if os.Getenv("GIN_MODE") != "release" {
@@ -64,7 +64,7 @@ func main() {
 			logger.Log.Fatalf("Failed to start the server: %v", err)
 		}
 	} else {
-		if err := router.RunTLS(":" + os.Getenv("SERVER_PORT"), os.Getenv("TLS_FULLCHAIN_FILE"), os.Getenv("TLS_PRIVKEY_FILE")); err != nil {
+		if err := router.RunTLS(":"+os.Getenv("SERVER_PORT"), os.Getenv("TLS_FULLCHAIN_FILE"), os.Getenv("TLS_PRIVKEY_FILE")); err != nil {
 			logger.Log.Fatalf("Failed to start the server: %v", err)
 		}
 	}

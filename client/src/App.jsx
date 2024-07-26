@@ -45,7 +45,7 @@ const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error("Failed to authenticate:", error);
         setIsLoggedIn(false);
-        navigate("/login");
+        navigate("/auth/login");
       }
     };
 
@@ -78,9 +78,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-      {/* {location.pathname !== '/login' && <NavBar />} */}
+      <NavBar />
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/auth/login" element={<Login />} />
           <Route
             path="/upload"
             element={

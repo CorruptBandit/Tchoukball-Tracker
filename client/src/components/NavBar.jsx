@@ -16,14 +16,16 @@ const NavBar = () => {
     }
   };
 
-  return (
-    <nav style={navStyle}>
-      <ul style={ulStyle}>
-        <li style={liStyle}><Link to="/" style={linkStyle}>Home</Link></li>
-        <li style={liStyle}><button onClick={handleSignOut} style={buttonStyle}>Sign Out</button></li>
-      </ul>
-    </nav>
-  );
+  return location.pathname !== '/auth/login' ? (
+    <div style={{ paddingTop: '60px' }}>
+      <nav style={navStyle}>
+        <ul style={ulStyle}>
+          <li style={liStyle}><Link to="/" style={linkStyle}>Home</Link></li>
+          <li style={liStyle}><button onClick={handleSignOut} style={buttonStyle}>Sign Out</button></li>
+        </ul>
+      </nav>
+    </div>
+  ) : undefined;
 };
 
 const navStyle = {
