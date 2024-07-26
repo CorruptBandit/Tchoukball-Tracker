@@ -23,13 +23,18 @@ import (
 // @host      localhost:8080
 // @BasePath  /
 func main() {
-	err := godotenv.Load("/app/.env") // Docker Path
-	if err != nil {
-		// Local Path
-		err = godotenv.Load("../.env")
+	if os.Getenv("GIN_MODE") != "release" {
+		// Attempt to load the .env file from Docker path
+		err := godotenv.Load("/app/.env") // Docker Path
 		if err != nil {
-			log.Fatalf("Error loading .env file")
+			// If not found, attempt to load the .env file from local path
+			err = godotenv.Load("../.env")
+			if err != nil {
+				log.Fatalf("Error loading .env file")
+			}
 		}
+	} else {
+		log.Println("GIN_MODE is set to release, skipping loading .env file")
 	}
 
 	router := gin.Default()
@@ -54,7 +59,13 @@ func main() {
 	handlers.RegisterAuthRoutes(router.Group("/login"))
 
 	logger.Log.Infof("Starting the server on port %s", os.Getenv("SERVER_PORT"))
-	if err := router.Run(":" + os.Getenv("SERVER_PORT")); err != nil {
-		logger.Log.Fatalf("Failed to start the server: %v", err)
+	if os.Getenv("GIN_MODE") != "release" {
+		if err := router.Run(":" + os.Getenv("SERVER_PORT")); err != nil {
+			logger.Log.Fatalf("Failed to start the server: %v", err)
+		}
+	} else {
+		if err := router.RunTLS(":" + os.Getenv("SERVER_PORT"), os.Getenv("TLS_FULLCHAIN_FILE"), os.Getenv("TLS_PRIVKEY_FILE")); err != nil {
+			logger.Log.Fatalf("Failed to start the server: %v", err)
+		}
 	}
 }

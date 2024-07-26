@@ -62,12 +62,11 @@ export default function LoginView() {
       };
 
       await dispatch(login(payload))
-        .unwrap()
         .then(() => {
             setUsername("");
             setPassword("");
             setIsLoggedIn(true);
-            navigate("/");
+            window.location.href = "/";
         })
         .catch((error) => {
           console.log(error)
