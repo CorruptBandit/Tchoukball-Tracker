@@ -16,6 +16,18 @@ export const login = createAsyncThunk(
   }
 );
 
+// Thunk for user logout
+export const logout = createAsyncThunk(
+  'users/logout',
+  async () => {
+    const response = await trackerAPI.post('/api/logout');
+    if (response.ok) {
+      return;
+    } else {
+      throw new Error('Logout failed');
+    }
+  }
+);
 
 // Thunk to check JWT status
 export const checkJWT = createAsyncThunk(

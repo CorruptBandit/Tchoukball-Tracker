@@ -1,10 +1,12 @@
 import React, { useState, useEffect, createContext } from "react";
+import NavBar from './components/NavBar';
 import PropTypes from "prop-types";
 import {
   BrowserRouter as Router,
   Route,
   Routes,
   Navigate,
+  useLocation,
   useNavigate,
 } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -33,6 +35,7 @@ const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const getUserData = async () => {
@@ -75,6 +78,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+      {/* {location.pathname !== '/login' && <NavBar />} */}
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route
