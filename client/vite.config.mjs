@@ -1,8 +1,9 @@
 import dotenv from 'dotenv';
+import path from 'path';
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react';
 
-dotenv.config();
+dotenv.config({ path: process.env.NODE_ENV === 'development' ? path.resolve("../", '.env') : path.resolve(".", '.env') });
 
 const CLIENT_PORT = Number(process.env.CLIENT_PORT) || 5173;
 const SERVER_PORT = Number(process.env.SERVER_PORT) || 8080;
