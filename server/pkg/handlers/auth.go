@@ -16,7 +16,8 @@ import (
 var jwtKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 
 func RegisterAuthRoutes(router *gin.RouterGroup) {
-	router.POST("", login)
+	router.POST("/login", login)
+	router.POST("/logout", logout)
 	router.POST("/jwt", validateToken)
 }
 
@@ -97,4 +98,17 @@ func validateToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"valid": true})
+}
+
+// Logout handles the logout process
+func logout(c *gin.Context) {
+	// Determine if the environment is set to release mode for HTTPS
+	secure := false
+	if gin.Mode() == gin.ReleaseMode {
+		secure = true
+	}
+
+	// Invalidate the session by setting the cookie to expire in the past
+	c.SetCookie("auth_token", "", -1, "/", "", secure, true)
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }

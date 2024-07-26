@@ -56,7 +56,7 @@ func main() {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	handlers.RegisterSpreadsheetsRoutes(router.Group("/spreadsheets"))
 	handlers.RegisterMatchesRoutes(router.Group("/matches"))
-	handlers.RegisterAuthRoutes(router.Group("/login"))
+	handlers.RegisterAuthRoutes(router.Group("/auth"))
 
 	logger.Log.Infof("Starting the server on port %s", os.Getenv("SERVER_PORT"))
 	if os.Getenv("GIN_MODE") != "release" {

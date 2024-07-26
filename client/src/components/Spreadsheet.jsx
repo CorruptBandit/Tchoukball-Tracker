@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchSpreadsheetById,
@@ -15,8 +16,7 @@ import {
   TableHead,
 } from "@mui/material";
 
-function Spreadsheet() {
-  const { id, setSelected } = useParams();
+function Spreadsheet({ id, setSelected }) {
   const dispatch = useDispatch();
   const [selectedPlayer, setSelectedPlayer] = useState();
   const spreadsheet = useSelector((state) => selectSpreadsheetById(state, id));
@@ -112,5 +112,10 @@ function Spreadsheet() {
     </TableContainer>
   );
 }
+
+Spreadsheet.propTypes = {
+  id: PropTypes.string.isRequired,
+  setSelected: PropTypes.func.isRequired,
+};
 
 export default Spreadsheet;
