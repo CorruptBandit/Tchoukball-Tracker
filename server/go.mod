@@ -6,6 +6,8 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/joho/godotenv v1.5.1
 	github.com/swaggo/swag v1.16.3
+	github.com/joho/godotenv v1.5.1
+	github.com/swaggo/swag v1.16.3
 	go.mongodb.org/mongo-driver v1.16.0
 )
 
@@ -15,6 +17,7 @@ require (
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
 	github.com/go-openapi/spec v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect

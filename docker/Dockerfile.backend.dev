@@ -6,6 +6,7 @@ ENV PATH="/usr/bin:${PATH}"
 # Install Air
 RUN go install github.com/cosmtrek/air@v1.29.0
 RUN go install github.com/swaggo/swag/cmd/swag@latest
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 
 # Set the working directory inside the container
 WORKDIR /app

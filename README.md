@@ -19,3 +19,19 @@ _To avoid using Docker entirely, Mongo can be run on your local machine or on Mo
 ```sh
 docker compose up
 ```
+
+## Prod
+
+This is a work in progreess, but TLS is enabled acrossed the board.
+
+**Build:**
+```sh
+sudo docker compose build --no-cache
+```
+
+**Run:**
+```sh
+sudo docker compose -f compose.prod.yaml up
+```
+
+_Please run all commands from root of the repo_s

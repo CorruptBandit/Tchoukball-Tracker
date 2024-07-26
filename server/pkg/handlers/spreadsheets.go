@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Tchoukball-Tracker/pkg/database"
+	middleware "github.com/Tchoukball-Tracker/pkg/middlewares"
 	"github.com/Tchoukball-Tracker/pkg/models"
 	"github.com/Tchoukball-Tracker/pkg/utils"
 	"github.com/gin-gonic/gin"
@@ -12,13 +13,13 @@ import (
 
 // RegisterRoutes registers spreadsheet-related routes in the provided router group.
 func RegisterSpreadsheetsRoutes(router *gin.RouterGroup) {
-	router.GET("", getAllSpreadsheets)
-	router.POST("", createSpreadsheet)
-	router.GET("/:id", getSpreadsheetByID)
-	router.PUT("/:id", updateSpreadsheet)
-	router.DELETE("/:id", deleteSpreadsheet)
-	router.POST("/:id/player", createPlayer)
-	router.POST("/:id/player/:player/action", createPlayerAction)
+	router.GET("", middleware.JWTAuthMiddleware(), getAllSpreadsheets)
+	router.POST("", middleware.JWTAuthMiddleware(), createSpreadsheet)
+	router.GET("/:id", middleware.JWTAuthMiddleware(), getSpreadsheetByID)
+	router.PUT("/:id", middleware.JWTAuthMiddleware(), updateSpreadsheet)
+	router.DELETE("/:id", middleware.JWTAuthMiddleware(), deleteSpreadsheet)
+	router.POST("/:id/player", middleware.JWTAuthMiddleware(), createPlayer)
+	router.POST("/:id/player/:player/action", middleware.JWTAuthMiddleware(), createPlayerAction)
 }
 
 // GetAllSpreadsheets retrieves all spreadsheets.
