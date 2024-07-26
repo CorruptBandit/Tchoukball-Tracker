@@ -11,10 +11,11 @@ import {
 } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import ExcelUpload from "./components/ExcelUpload"; // Adjust the path as necessary
-import SpreadsheetViewer from "./components/SpreadsheetViewer"; // Adjust the path as necessary
 import Login from "./pages/Login"; // Adjust the path as necessary
 import TrackerView from "./pages/TrackerView";
+import MatchView from "./pages/MatchView";
 import MatchesView from "./pages/MatchesView";
+import MatchOverview from "./components/MatchOverview"
 import PageNotFound from "./pages/PageNotFound";
 import CreateMatchView from "./pages/CreateMatchView";
 import { createTheme } from "@mui/material";
@@ -98,10 +99,13 @@ function App() {
           />
           <Route path="/create-match" element={<CreateMatchView />} />
           <Route
+            path="/match/:matchId/"
+            element={<MatchOverview />}
+          />
+          <Route
             path="/match/:matchId/third/:third"
             element={<TrackerView />}
           />
-          <Route path="/view" element={<SpreadsheetViewer />} />
           <Route path="/*" element={<PageNotFound />} />
         </Routes>
       </AuthProvider>

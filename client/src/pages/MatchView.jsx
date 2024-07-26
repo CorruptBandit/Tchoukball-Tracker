@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -13,9 +13,10 @@ import {
   CssBaseline
 } from "@mui/material";
 import { formatDistanceToNow } from "date-fns";
-import { selectAllMatches, fetchMatches } from "../store/slices/matchesSlice";
+import { selectAllMatches, fetchMatchById } from "../store/slices/matchesSlice";
 
-const MatchesView = () => {
+const MatchView = () => {
+  const { matchId } = useParams();
   const dispatch = useDispatch();
   const matches = useSelector(selectAllMatches);
   const matchStatus = useSelector(state => state.matches.status);
@@ -25,7 +26,7 @@ const MatchesView = () => {
 
   useEffect(() => {
     if (matchStatus === "idle") {
-      dispatch(fetchMatches());
+      dispatch(fetchMatchById());
     }
   }, [matchStatus, dispatch]);
 
@@ -74,7 +75,7 @@ const MatchesView = () => {
           sx={{ mb: 4 }}
         />
         <Grid container spacing={3}>
-          {matchesToShow?.map((match) => (
+          {matchesToShow.map((match) => (
             <Grid item xs={12} key={match.id}>
               <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
                 <Typography variant="h5" gutterBottom fontWeight="bold">
@@ -121,4 +122,4 @@ const MatchesView = () => {
   );
 };
 
-export default MatchesView;
+export default MatchView;

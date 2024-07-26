@@ -77,7 +77,7 @@ function Spreadsheet({ id, setSelected }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {spreadsheet.players.map((player, index) => (
+          {spreadsheet.players?.map((player, index) => (
             <TableRow
               key={player.name}
               hover
