@@ -38,3 +38,17 @@ func (db *Spreadsheet) FindPlayer(name string) *Player {
 	}
 	return nil
 }
+
+func (db *Spreadsheet) AddPlayer(player Player) {
+	db.Players = append(db.Players, &player)
+}
+
+func (db *Spreadsheet) RemovePlayer(name string) {
+	newPlayers := []*Player{}
+	for _, player := range db.Players {
+		if player.Name != name {
+			newPlayers = append(newPlayers, player)
+		}
+	}
+	db.Players = newPlayers
+}

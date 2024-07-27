@@ -350,16 +350,16 @@ paths:
     post:
       consumes:
       - application/json
-      description: create a new spreadsheet with the provided details
+      description: create a new player with the provided details
       parameters:
       - description: Spreadsheet ID
         in: path
         name: id
         required: true
         type: string
-      - description: Spreadsheet Info
+      - description: Player
         in: body
-        name: spreadsheet
+        name: player
         required: true
         schema:
           $ref: '#/definitions/models.Player'
@@ -382,7 +382,44 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/models.HTTPError'
-      summary: Create a new spreadsheet
+      summary: Create a new player
+      tags:
+      - spreadsheets
+  /spreadsheets/{id}/player/:
+    delete:
+      consumes:
+      - application/json
+      description: Removes a player from the spreadsheet specified by ID.
+      parameters:
+      - description: Spreadsheet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Player
+        in: body
+        name: player
+        required: true
+        schema:
+          $ref: '#/definitions/models.Player'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Player successfully removed
+        "400":
+          description: Bad request - invalid path parameters
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "404":
+          description: Player not found
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.HTTPError'
+      summary: Remove an existing player
       tags:
       - spreadsheets
   /spreadsheets/{id}/player/{player}/action:
@@ -403,7 +440,7 @@ paths:
         type: string
       - description: Action Info
         in: body
-        name: spreadsheet
+        name: playerAction
         required: true
         schema:
           $ref: '#/definitions/models.PlayerAction'

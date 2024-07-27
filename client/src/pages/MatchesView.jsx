@@ -21,7 +21,7 @@ const MatchesView = () => {
   const matchStatus = useSelector(state => state.matches.status);
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
-  const itemsPerPage = 3;
+  const itemsPerPage = 2;
 
   useEffect(() => {
     if (matchStatus === "idle") {

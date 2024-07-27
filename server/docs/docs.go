@@ -419,7 +419,7 @@ const docTemplate = `{
         },
         "/spreadsheets/{id}/player": {
             "post": {
-                "description": "create a new spreadsheet with the provided details",
+                "description": "create a new player with the provided details",
                 "consumes": [
                     "application/json"
                 ],
@@ -429,7 +429,7 @@ const docTemplate = `{
                 "tags": [
                     "spreadsheets"
                 ],
-                "summary": "Create a new spreadsheet",
+                "summary": "Create a new player",
                 "parameters": [
                     {
                         "type": "string",
@@ -439,8 +439,8 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Spreadsheet Info",
-                        "name": "spreadsheet",
+                        "description": "Player",
+                        "name": "player",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -463,6 +463,62 @@ const docTemplate = `{
                     },
                     "422": {
                         "description": "Bad request - missing element",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/spreadsheets/{id}/player/": {
+            "delete": {
+                "description": "Removes a player from the spreadsheet specified by ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "spreadsheets"
+                ],
+                "summary": "Remove an existing player",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Spreadsheet ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Player",
+                        "name": "player",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Player"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Player successfully removed"
+                    },
+                    "400": {
+                        "description": "Bad request - invalid path parameters",
+                        "schema": {
+                            "$ref": "#/definitions/models.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Player not found",
                         "schema": {
                             "$ref": "#/definitions/models.HTTPError"
                         }
@@ -506,7 +562,7 @@ const docTemplate = `{
                     },
                     {
                         "description": "Action Info",
-                        "name": "spreadsheet",
+                        "name": "playerAction",
                         "in": "body",
                         "required": true,
                         "schema": {

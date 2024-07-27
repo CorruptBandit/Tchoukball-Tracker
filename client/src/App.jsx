@@ -79,6 +79,7 @@ function App() {
     <Router>
       <AuthProvider>
       <NavBar />
+        <div style={{ paddingTop: '60px' }}>
         <Routes>
           <Route path="/auth/login" element={<Login />} />
           <Route
@@ -108,6 +109,7 @@ function App() {
           />
           <Route path="/*" element={<PageNotFound />} />
         </Routes>
+        </div>
       </AuthProvider>
     </Router>
   );

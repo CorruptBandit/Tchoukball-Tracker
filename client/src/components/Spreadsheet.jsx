@@ -24,7 +24,7 @@ function Spreadsheet({ id, setSelected }) {
 
   useEffect(() => {
     if (spreadsheetStatus === "idle" && !spreadsheet) {
-      dispatch(fetchSpreadsheetById({ id }));
+      dispatch(fetchSpreadsheetById(id));
       setSelectedPlayer("");
     }
   }, [id, spreadsheet, spreadsheetStatus, dispatch]);

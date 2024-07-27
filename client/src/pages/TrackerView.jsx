@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
+import { fetchMatchById, selectMatchById } from "../store/slices/matchesSlice";
+import { addNewPlayerAction, fetchSpreadsheetById, selectSpreadsheetById } from "../store/slices/spreadsheetsSlice";
 import {
   Typography,
   Container,
@@ -11,8 +13,7 @@ import {
 } from "@mui/material";
 import ActionButtonGrid from "../components/ActionButtonGrid";
 import Spreadsheet from "../components/Spreadsheet";
-import { fetchMatchById, selectMatchById } from "../store/slices/matchesSlice";
-import { addNewPlayerAction } from "../store/slices/spreadsheetsSlice";
+import PlayerMenu from "../menus/PlayerMenu";
 
 const actions = [
   "Point",
@@ -26,33 +27,62 @@ const actions = [
 ];
 
 function TrackerView() {
-  const { matchId, third } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { matchId, third } = useParams();
   const [selectedPlayer, setSelectedPlayer] = useState("");
+  const [playerMenuOpen, setPlayerMenuOpen] = useState(false);
+  const [spreadsheetId, setSpreadsheetId] = useState("");
   const match = useSelector((state) => selectMatchById(state, matchId));
+  const spreadsheet = useSelector((state) => selectSpreadsheetById(state, spreadsheetId));
   const matchStatus = useSelector((state) => state.matches.status);
+  const spreadsheetStatus = useSelector((state) => state.spreadsheets.status);
+
   let intThird = parseInt(third);
   if (intThird < 1) intThird = 1;
   if (intThird > 3) intThird = 3;
 
   useEffect(() => {
     if (matchStatus === "idle" && !match) {
-      dispatch(fetchMatchById({ id: matchId }));
+      dispatch(fetchMatchById({ id: matchId }))
+      .unwrap()
+      .then((response) => {
+       switch (intThird) {
+          case 1:
+            setSpreadsheetId(response.thirds["first"]);
+            break
+          case 2:
+            setSpreadsheetId(response.thirds["second"]);
+            break
+          case 3:
+            setSpreadsheetId(response.thirds["third"]);
+            break
+        }
+      });
     }
   }, [matchId, match, matchStatus, dispatch]);
 
-  const thirdFormatter = () => {
-    if (intThird === 1) return "1st";
-    if (intThird === 2) return "2nd";
-    if (intThird === 3) return "3rd";
-    return `${intThird}th`;
-  };
 
-  const thirdIDCalculator = () => {
-    const third = Object.keys(match.thirds)[intThird - 1];
-    return match.thirds[third];
-  };
+
+  useEffect(() => {
+    if (match?.thirds) {
+      switch (intThird) {
+        case 1:
+          setSpreadsheetId(match.thirds["first"]);
+          break
+        case 2:
+          setSpreadsheetId(match.thirds["second"]);
+          break
+        case 3:
+          setSpreadsheetId(match.thirds["third"]);
+          break
+      } 
+    }
+
+    if (spreadsheetStatus === "idle" && !spreadsheet) {
+      dispatch(fetchSpreadsheetById(spreadsheetId));
+    }
+  }, [third, spreadsheetId, spreadsheet, spreadsheetStatus, dispatch]);
 
   const navigateThird = (direction) => {
     const newThird = intThird + direction;
@@ -65,7 +95,7 @@ function TrackerView() {
   const addAction = (action) => {
     dispatch(
       addNewPlayerAction({
-        id: thirdIDCalculator(),
+        id: spreadsheetId,
         player: selectedPlayer,
         value: 1,
         action: action.toLowerCase(),
@@ -76,15 +106,28 @@ function TrackerView() {
   return (
     <>
       <CssBaseline />
-      <Container maxWidth="md" sx={{ py: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <PlayerMenu
+        id={spreadsheetId}
+        open={playerMenuOpen}
+        close={() => setPlayerMenuOpen(false)}
+      />
+      <Container
+        maxWidth="md"
+        sx={{
+          py: 4,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         {match?.name && (
           <Typography variant="h3" component="h1" gutterBottom align="center">
-            {match.name} - {thirdFormatter()} Third
+            {spreadsheet?.name}
           </Typography>
         )}
-  
+
         {match?.thirds && (
-          <Box sx={{ mb: 4, width: '100%' }}>
+          <Box sx={{ mb: 4, width: "100%" }}>
             <Box
               sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
             >
@@ -96,6 +139,12 @@ function TrackerView() {
                 Previous Third
               </Button>
               <Button
+                variant="outlined"
+                onClick={() => setPlayerMenuOpen(true)}
+              >
+                Manage Players
+              </Button>
+              <Button
                 variant="contained"
                 disabled={intThird === 3}
                 onClick={() => navigateThird(1)}
@@ -104,14 +153,14 @@ function TrackerView() {
               </Button>
             </Box>
             <Spreadsheet
-              id={thirdIDCalculator()}
+              id={spreadsheetId}
               setSelected={setSelectedPlayer}
             />
           </Box>
         )}
-  
+
         {selectedPlayer && (
-          <Card sx={{ mt: 4, p: 3, width: '100%' }}>
+          <Card sx={{ mt: 4, p: 3, width: "100%" }}>
             <Typography variant="h5" gutterBottom align="center">
               Action for: {selectedPlayer}
             </Typography>

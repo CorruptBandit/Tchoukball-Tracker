@@ -19,6 +19,7 @@ func RegisterSpreadsheetsRoutes(router *gin.RouterGroup) {
 	router.PUT("/:id", middleware.JWTAuthMiddleware(), updateSpreadsheet)
 	router.DELETE("/:id", middleware.JWTAuthMiddleware(), deleteSpreadsheet)
 	router.POST("/:id/player", middleware.JWTAuthMiddleware(), createPlayer)
+	router.DELETE("/:id/player", middleware.JWTAuthMiddleware(), removePlayer)
 	router.POST("/:id/player/:player/action", middleware.JWTAuthMiddleware(), createPlayerAction)
 }
 
@@ -178,42 +179,87 @@ func deleteSpreadsheet(c *gin.Context) {
 	c.JSON(http.StatusOK, models.HTTPError{Code: http.StatusOK, Message: "Successfully Deleted"})
 }
 
-// CreatePlayerAction creates a new player action.
-// @Summary Create a new spreadsheet
-// @Description create a new spreadsheet with the provided details
+// CreatePlayer creates a new player.
+// @Summary Create a new player
+// @Description create a new player with the provided details
 // @Tags spreadsheets
 // @Accept json
 // @Produce json
 // @Param id path string true "Spreadsheet ID"
-// @Param spreadsheet body models.Player true "Spreadsheet Info"
+// @Param player body models.Player true "Player"
 // @Success 201 {object} models.Spreadsheet "Successfully created"
 // @Failure 400 {object} models.HTTPError "Bad request - invalid JSON"
 // @Failure 422 {object} models.HTTPError "Bad request - missing element"
 // @Failure 500 {object} models.HTTPError "Internal server error"
 // @Router /spreadsheets/{id}/player [post]
 func createPlayer(c *gin.Context) {
-	var newSpreadsheet *models.Spreadsheet
-	if err := c.ShouldBindJSON(&newSpreadsheet); err != nil {
+	hexID := c.Param("id")
+	var newPlayer models.Player
+	if err := c.ShouldBindJSON(&newPlayer); err != nil {
 		c.JSON(http.StatusBadRequest, models.HTTPError{Code: http.StatusBadRequest, Message: err.Error()})
 		return
 	}
 
-	if newSpreadsheet.Name == "" {
-		c.JSON(http.StatusUnprocessableEntity, models.HTTPError{Code: http.StatusUnprocessableEntity, Message: "Please provide a name for the Spreadsheet"})
+	dbResult, err := database.Find(c.Request.Context(), &models.Spreadsheet{ID: utils.ConvertToMongoID(hexID)})
+	if err != nil {
+		c.JSON(http.StatusNotFound, models.HTTPError{Code: http.StatusNotFound, Message: "Spreadsheet not found"})
 		return
 	}
 
-	if newSpreadsheet.Players == nil {
-		newSpreadsheet.Players = make([]*models.Player, 0)
-	}
+	spreadsheet := dbResult.(*models.Spreadsheet)
+	spreadsheet.AddPlayer(newPlayer)
 
-	dbSpreadsheet, err := database.Insert(c.Request.Context(), newSpreadsheet)
+	_, err = database.Update(c.Request.Context(), spreadsheet)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.HTTPError{Code: http.StatusInternalServerError, Message: err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, dbSpreadsheet)
+	c.JSON(http.StatusCreated, spreadsheet)
+}
+
+// Removes a player from a spreadsheet.
+// @Summary Remove an existing player
+// @Description Removes a player from the spreadsheet specified by ID.
+// @Tags spreadsheets
+// @Accept json
+// @Produce json
+// @Param id path string true "Spreadsheet ID"
+// @Param player body models.Player true "Player"
+// @Success 204 "Player successfully removed"
+// @Failure 400 {object} models.HTTPError "Bad request - invalid path parameters"
+// @Failure 404 {object} models.HTTPError "Player not found"
+// @Failure 500 {object} models.HTTPError "Internal server error"
+// @Router /spreadsheets/{id}/player/ [delete]
+func removePlayer(c *gin.Context) {
+	hexID := c.Param("id")
+	var player models.Player
+	if err := c.ShouldBindJSON(&player); err != nil {
+		c.JSON(http.StatusBadRequest, models.HTTPError{Code: http.StatusBadRequest, Message: err.Error()})
+		return
+	}
+
+	dbResult, err := database.Find(c.Request.Context(), &models.Spreadsheet{ID: utils.ConvertToMongoID(hexID)})
+	if err != nil {
+		c.JSON(http.StatusNotFound, models.HTTPError{Code: http.StatusNotFound, Message: "Spreadsheet not found"})
+		return
+	}
+
+	spreadsheet := dbResult.(*models.Spreadsheet)
+	existing := spreadsheet.FindPlayer(player.Name)
+	if existing == nil {
+		c.JSON(http.StatusNotFound, models.HTTPError{Code: http.StatusNotFound, Message: "Spreadsheet not found"})
+		return
+	}
+
+	spreadsheet.RemovePlayer(player.Name)
+	_, err = database.Update(c.Request.Context(), spreadsheet)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.HTTPError{Code: http.StatusInternalServerError, Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, spreadsheet)
 }
 
 // CreatePlayerAction creates a new player action.
@@ -224,7 +270,7 @@ func createPlayer(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Spreadsheet ID"
 // @Param player path string true "Player name"
-// @Param spreadsheet body models.PlayerAction true "Action Info"
+// @Param playerAction body models.PlayerAction true "Action Info"
 // @Success 201 {object} models.Player "Successfully created"
 // @Failure 400 {object} models.HTTPError "Bad request - invalid JSON"
 // @Failure 404 {object} models.HTTPError "Failed to find player"

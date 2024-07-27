@@ -22,9 +22,9 @@ export const fetchSpreadsheets = createAsyncThunk(
 
 export const fetchSpreadsheetById = createAsyncThunk(
   "spreadsheets/fetchSpreadsheetsById",
-  async (payload) => {
+  async (id) => {
     const response = await trackerAPI.fetch(
-      `/api/spreadsheets/${payload.id}`,
+      `/api/spreadsheets/${id}`,
       null
     );
     return response.json();
@@ -33,9 +33,9 @@ export const fetchSpreadsheetById = createAsyncThunk(
 
 export const deleteSpreadsheet = createAsyncThunk(
   "spreadsheets/deleteSpreadsheet",
-  async (payload) => {
+  async (id) => {
     const response = await trackerAPI.delete(
-      `/api/spreadsheets/${payload.id}`,
+      `/api/spreadsheets/${id}`,
       null
     );
     return response.json();
@@ -61,6 +61,36 @@ export const addNewSpreadsheet = createAsyncThunk(
       path: payload.path,
     });
     return response.json();
+  }
+);
+
+export const addNewPlayer = createAsyncThunk(
+  "spreadsheets/addNewPlayer",
+  async (payload) => {
+    const response = await trackerAPI.post(
+      `/api/spreadsheets/${payload.id}/player`,
+      {
+        name: payload.name,
+      }
+    );
+
+    const data = await response.json();
+    return { spreadsheet: payload.id, data: data};
+  }
+);
+
+export const removePlayer = createAsyncThunk(
+  "spreadsheets/removePlayer",
+  async (payload) => {
+    const response = await trackerAPI.delete(
+      `/api/spreadsheets/${payload.id}/player`,
+      {
+        name: payload.name,
+      }
+    );
+
+    const data = await response.json();
+    return { spreadsheet: payload.id, data: data};
   }
 );
 
@@ -112,6 +142,20 @@ export const spreadsheetsSlice = createSlice({
       })
       .addCase(addNewSpreadsheet.fulfilled, (state, action) => {
         spreadsheetAdapter.addOne(state, action.payload);
+      })
+      .addCase(addNewPlayer.fulfilled, (state, action) => {
+        const {spreadsheet, data} = action.payload;
+        spreadsheetAdapter.updateOne(state, {
+          id: spreadsheet,
+          changes: data,
+        });
+      })
+      .addCase(removePlayer.fulfilled, (state, action) => {
+        const {spreadsheet, data} = action.payload;
+        spreadsheetAdapter.updateOne(state, {
+          id: spreadsheet,
+          changes: data,
+        });
       })
       .addCase(addNewPlayerAction.fulfilled, (state, action) => {
         const { spreadsheet, player, data } = action.payload;
