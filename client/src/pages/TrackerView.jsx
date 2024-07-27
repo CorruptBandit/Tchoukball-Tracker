@@ -44,7 +44,7 @@ function TrackerView() {
 
   useEffect(() => {
     if (matchStatus === "idle" && !match) {
-      dispatch(fetchMatchById({ id: matchId }))
+      dispatch(fetchMatchById(matchId))
       .unwrap()
       .then((response) => {
        switch (intThird) {

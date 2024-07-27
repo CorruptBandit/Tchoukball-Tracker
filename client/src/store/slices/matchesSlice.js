@@ -25,9 +25,9 @@ import {
 
   export const fetchMatchById = createAsyncThunk(
     "matches/fetchMatchesById",
-    async (payload) => {
+    async (id) => {
       const response = await trackerAPI.fetch(
-        `/api/matches/${payload.id}`,
+        `/api/matches/${id}`,
         null,
       );
       return response.json();

@@ -1,122 +1,101 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
-  Box,
-  Typography,
-  Paper,
-  Grid,
-  Button,
   Container,
-  TextField,
-  Pagination,
   CssBaseline
 } from "@mui/material";
-import { formatDistanceToNow } from "date-fns";
-import { selectAllMatches, fetchMatchById } from "../store/slices/matchesSlice";
+import { fetchMatchById, selectMatchById } from "../store/slices/matchesSlice";
+import MatchOverview from "../components/MatchOverview";
+import { fetchSpreadsheetById, selectSpreadsheetById } from "../store/slices/spreadsheetsSlice";
 
 const MatchView = () => {
   const { matchId } = useParams();
   const dispatch = useDispatch();
-  const matches = useSelector(selectAllMatches);
+  const match = useSelector(state => selectMatchById(state, matchId));
   const matchStatus = useSelector(state => state.matches.status);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(1);
-  const itemsPerPage = 3;
+  const spreadsheetStatus = useSelector(state => state.spreadsheets.status);
+  
+  const first = useSelector(state => selectSpreadsheetById(state, match?.thirds["first"]));
+  const second = useSelector(state => selectSpreadsheetById(state, match?.thirds["second"]));
+  const third = useSelector(state => selectSpreadsheetById(state, match?.thirds["third"]));
 
   useEffect(() => {
     if (matchStatus === "idle") {
-      dispatch(fetchMatchById());
+      dispatch(fetchMatchById(matchId));
     }
   }, [matchStatus, dispatch]);
 
-  // Sorting and filtering matches
-  const filteredMatches = matches
-    .filter(match => match.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-  // Calculating the number of pages
-  const pageCount = Math.ceil(filteredMatches.length / itemsPerPage);
+  useEffect(() => {
+    if (spreadsheetStatus === "idle" && match?.thirds) {
+      if (!first) dispatch(fetchSpreadsheetById(match.thirds["first"]));
+      if (!second) dispatch(fetchSpreadsheetById(match.thirds["second"]));
+      if (!third) dispatch(fetchSpreadsheetById(match.thirds["third"]));
+    }
+  }, [match, spreadsheetStatus, dispatch]);
 
-  // Slice matches for current page
-  const matchesToShow = filteredMatches.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
-  );
+  const useMatchData = (match) => {
+    // Retrieve each third's data from Redux
+    const first = useSelector(state => selectSpreadsheetById(state, match?.thirds["first"]));
+    const second = useSelector(state => selectSpreadsheetById(state, match?.thirds["second"]));
+    const third = useSelector(state => selectSpreadsheetById(state, match?.thirds["third"]));
+  
+    // Helper function to sum stats
+    const sumAttackingStats = (existingStats, newStats) => {
+      return {
+        point: existingStats.point + newStats.point,
+        caught: existingStats.caught + newStats.caught,
+        short: existingStats.short + newStats.short,
+        mistake: existingStats.mistake + newStats.mistake,
+      };
+    };
 
-  const handlePageChange = (event, value) => {
-    setPage(value);
+    const sumDefendingStats = (existingStats, newStats) => {
+      return {
+        first: existingStats.first + newStats.first,
+        second: existingStats.second + newStats.second,
+        drop: existingStats.drop + newStats.drop,
+        gap: existingStats.gap + newStats.gap,
+      };
+    };
+      
+    // Aggregate data
+    const players = {};
+  
+    // Process a single third's data
+    const processThird = (thirdData) => {
+      thirdData?.players?.forEach(player => {
+        if (!players[player.name]) {
+          players[player.name] = {
+            name: player.name,
+            attacking: { point: 0, caught: 0, short: 0, mistake: 0 },
+            defending: { first: 0, second: 0, drop: 0, gap: 0 },
+          };
+        }
+        // Make sure existing stats are correctly referenced and updated
+        players[player.name].attacking = sumAttackingStats(players[player.name].attacking, player.attacking);
+        players[player.name].defending = sumDefendingStats(players[player.name].defending, player.defending);
+      });
+    };
+  
+    // Process each third
+    [first, second, third]?.forEach(third => processThird(third));
+  
+    return {
+      name: match?.name || "Match Name Not Found",
+      players: Object.values(players),
+    };
   };
 
+
+  const matchData = useMatchData(match);
+  console.log(matchData);
   return (
     <>
       <CssBaseline />
       <Container maxWidth="md" sx={{ py: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography variant="h4" component="h1" fontWeight="bold">
-            Matches
-          </Typography>
-          <Button
-            component={Link}
-            to="/create-match"
-            variant="contained"
-            color="primary"
-            size="large"
-          >
-            Create Match
-          </Button>
-        </Box>
-        <TextField
-          fullWidth
-          label="Search Matches"
-          variant="outlined"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ mb: 4 }}
-        />
-        <Grid container spacing={3}>
-          {matchesToShow.map((match) => (
-            <Grid item xs={12} key={match.id}>
-              <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-                <Typography variant="h5" gutterBottom fontWeight="bold">
-                  {match.name}
-                </Typography>
-                <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                  Played on: {new Date(match.created_at).toLocaleDateString()} ({formatDistanceToNow(new Date(match.created_at), { addSuffix: true })})
-                </Typography>
-                <Grid container spacing={2} sx={{ mt: 2 }}>
-                  {Object.entries(match.thirds).map(([key], index) => (
-                    <Grid item xs={4} key={key}>
-                      <Button
-                        component={Link}
-                        to={`/match/${match.id}/third/${index + 1}`}
-                        variant="outlined"
-                        fullWidth
-                        sx={{ py: 1 }}
-                      >
-                        {key.toUpperCase()}
-                      </Button>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
-        {filteredMatches.length === 0 && (
-          <Typography variant="subtitle1" align="center" sx={{ mt: 4 }}>No matches found.</Typography>
-        )}
-        {pageCount > 1 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <Pagination
-              count={pageCount}
-              page={page}
-              onChange={handlePageChange}
-              color="primary"
-              size="large"
-            />
-          </Box>
-        )}
+        <MatchOverview matchData={matchData} />
       </Container>
       </>
   );

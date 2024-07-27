@@ -10,7 +10,7 @@ import {
   Container,
   TextField,
   Pagination,
-  CssBaseline
+  CssBaseline,
 } from "@mui/material";
 import { formatDistanceToNow } from "date-fns";
 import { selectAllMatches, fetchMatches } from "../store/slices/matchesSlice";
@@ -18,8 +18,8 @@ import { selectAllMatches, fetchMatches } from "../store/slices/matchesSlice";
 const MatchesView = () => {
   const dispatch = useDispatch();
   const matches = useSelector(selectAllMatches);
-  const matchStatus = useSelector(state => state.matches.status);
-  const [searchTerm, setSearchTerm] = useState('');
+  const matchStatus = useSelector((state) => state.matches.status);
+  const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const itemsPerPage = 2;
 
@@ -31,7 +31,9 @@ const MatchesView = () => {
 
   // Sorting and filtering matches
   const filteredMatches = matches
-    .filter(match => match.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter((match) =>
+      match.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   // Calculating the number of pages
@@ -51,7 +53,14 @@ const MatchesView = () => {
     <>
       <CssBaseline />
       <Container maxWidth="md" sx={{ py: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 4,
+          }}
+        >
           <Typography variant="h4" component="h1" fontWeight="bold">
             Matches
           </Typography>
@@ -80,8 +89,16 @@ const MatchesView = () => {
                 <Typography variant="h5" gutterBottom fontWeight="bold">
                   {match.name}
                 </Typography>
-                <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                  Played on: {new Date(match.created_at).toLocaleDateString()} ({formatDistanceToNow(new Date(match.created_at), { addSuffix: true })})
+                <Typography
+                  variant="subtitle1"
+                  color="text.secondary"
+                  gutterBottom
+                >
+                  Played on: {new Date(match.created_at).toLocaleDateString()} (
+                  {formatDistanceToNow(new Date(match.created_at), {
+                    addSuffix: true,
+                  })}
+                  )
                 </Typography>
                 <Grid container spacing={2} sx={{ mt: 2 }}>
                   {Object.entries(match.thirds).map(([key], index) => (
@@ -98,15 +115,26 @@ const MatchesView = () => {
                     </Grid>
                   ))}
                 </Grid>
+                <Button
+                  component={Link}
+                  to={`/match/${match.id}/`}
+                  variant="contained"
+                  fullWidth
+                  sx={{mt: 1, py: 1 }}
+                >
+                  Overview
+                </Button>
               </Paper>
             </Grid>
           ))}
         </Grid>
         {filteredMatches.length === 0 && (
-          <Typography variant="subtitle1" align="center" sx={{ mt: 4 }}>No matches found.</Typography>
+          <Typography variant="subtitle1" align="center" sx={{ mt: 4 }}>
+            No matches found.
+          </Typography>
         )}
         {pageCount > 1 && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
             <Pagination
               count={pageCount}
               page={page}
@@ -117,7 +145,7 @@ const MatchesView = () => {
           </Box>
         )}
       </Container>
-      </>
+    </>
   );
 };
 

@@ -5,8 +5,6 @@ import {
   BrowserRouter as Router,
   Route,
   Routes,
-  Navigate,
-  useLocation,
   useNavigate,
 } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -15,7 +13,6 @@ import Login from "./pages/Login"; // Adjust the path as necessary
 import TrackerView from "./pages/TrackerView";
 import MatchView from "./pages/MatchView";
 import MatchesView from "./pages/MatchesView";
-import MatchOverview from "./components/MatchOverview"
 import PageNotFound from "./pages/PageNotFound";
 import CreateMatchView from "./pages/CreateMatchView";
 import { createTheme } from "@mui/material";
@@ -35,7 +32,6 @@ const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const getUserData = async () => {
@@ -101,7 +97,7 @@ function App() {
           <Route path="/create-match" element={<CreateMatchView />} />
           <Route
             path="/match/:matchId/"
-            element={<MatchOverview />}
+            element={<MatchView />}
           />
           <Route
             path="/match/:matchId/third/:third"
