@@ -9,12 +9,10 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Button,
   Card,
-  Checkbox,
   FormControl,
   IconButton,
   InputAdornment,
   InputLabel,
-  Link,
   OutlinedInput,
   TextField,
   Typography,
@@ -46,8 +44,7 @@ export default function LoginView() {
     setKeepLoggedIn(!keepLoggedIn);
   };
 
-  const canLogin =
-    [username, password].every(Boolean);
+  const canLogin = [username, password].every(Boolean);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -61,25 +58,25 @@ export default function LoginView() {
 
       await dispatch(login(payload))
         .then((response) => {
-            setUsername("");
-            setPassword("");
-            setIsLoggedIn(true);
-            if (response.payload.code === 200) {
-              window.location.href = "/";
-            } else {
-              setErrorMessage(response?.error?.message || "An unexpected error occurred");
-            }
+          setUsername("");
+          setPassword("");
+          setIsLoggedIn(true);
+          if (response?.payload?.code === 200) {
+            window.location.href = "/";
+          } else {
+            setErrorMessage(response?.error?.message || "An unexpected error occurred");
+          }
         })
         .catch((error) => {
           console.log(error)
-          if (error.status === 401) {
+          if (error.payload.code === 401) {
             setErrorMessage("Invalid Credentials");
           } else {
-            setErrorMessage(error.error.message || "An unexpected error occurred");
+            setErrorMessage(error?.error?.message || "An unexpected error occurred");
           }
         });
     } else {
-      setErrorMessage("Please enter username & password to login");
+      setErrorMessage("Username & Password required");
     }
   };
 
@@ -98,7 +95,13 @@ export default function LoginView() {
           >
             Log In
           </Typography>
-          <Typography color="error" sx={{ marginBottom: "16px", textAlign: "center" }}>{errorMessage}</Typography>
+          <div style={styles.errorContainer}>
+            {errorMessage && (
+              <Typography color="error" sx={{ textAlign: "center" }}>
+                {errorMessage}
+              </Typography>
+            )}
+          </div>
           <div style={styles.inputContainer}> {/* Adjusted margin */}
             <TextField
               id="outlined-basic"
@@ -190,6 +193,7 @@ const styles = {
     width: "100%",
     maxWidth: "400px",
     margin: "0 auto",
+    minHeight: "400px", // Set a minimum height to avoid resizing
   },
   form: {
     display: "flex",
@@ -207,5 +211,9 @@ const styles = {
     justifyContent: "center",
     width: "100%",
     marginTop: "16px"
+  },
+  errorContainer: {
+    minHeight: "24px", // Reserve space for the error message
+    marginBottom: "16px", // Add margin for spacing
   }
 };
