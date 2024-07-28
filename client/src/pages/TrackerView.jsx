@@ -10,6 +10,8 @@ import {
   Box,
   CssBaseline,
   Button,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import ActionButtonGrid from "../components/ActionButtonGrid";
 import Spreadsheet from "../components/Spreadsheet";
@@ -33,6 +35,7 @@ function TrackerView() {
   const [selectedPlayer, setSelectedPlayer] = useState("");
   const [playerMenuOpen, setPlayerMenuOpen] = useState(false);
   const [spreadsheetId, setSpreadsheetId] = useState("");
+  const [removePointsMode, setRemovePointsMode] = useState(false);
   const match = useSelector((state) => selectMatchById(state, matchId));
   const spreadsheet = useSelector((state) => selectSpreadsheetById(state, spreadsheetId));
   const matchStatus = useSelector((state) => state.matches.status);
@@ -61,8 +64,6 @@ function TrackerView() {
       });
     }
   }, [matchId, match, matchStatus, dispatch]);
-
-
 
   useEffect(() => {
     if (match?.thirds) {
@@ -93,14 +94,19 @@ function TrackerView() {
   };
 
   const addAction = (action) => {
+    const value = removePointsMode ? -1 : 1;
     dispatch(
       addNewPlayerAction({
         id: spreadsheetId,
         player: selectedPlayer,
-        value: 1,
+        value: value,
         action: action.toLowerCase(),
       })
     );
+  };
+
+  const toggleRemovePointsMode = () => {
+    setRemovePointsMode((prevMode) => !prevMode);
   };
 
   return (
@@ -160,11 +166,27 @@ function TrackerView() {
         )}
 
         {selectedPlayer && (
-          <Card sx={{ mt: 4, p: 3, width: "100%" }}>
+          <Card sx={{ mt: 4, p: 3, width: "100%", position: "relative" }}>
             <Typography variant="h5" gutterBottom align="center">
               Action for: {selectedPlayer}
             </Typography>
-            <ActionButtonGrid buttons={actions} onClick={addAction} />
+            <FormControlLabel
+              labelPlacement="start"
+              control={
+                <Switch
+                  checked={removePointsMode}
+                  onChange={toggleRemovePointsMode}
+                  color="primary"
+                />
+              }
+              label={removePointsMode ? "Remove" : "Add"}
+              sx={{ position: "absolute", top: 16, right: 16 }}
+            />
+            <ActionButtonGrid
+              buttons={actions}
+              onClick={addAction}
+              removePointsMode={removePointsMode}
+            />
           </Card>
         )}
       </Container>

@@ -28,20 +28,27 @@ type Defending struct {
 func (p *Player) AddAction(action PlayerAction) {
 	switch action.Type {
 	case "point":
-		p.Attacking.Point += action.Value
+		p.Attacking.Point = max(0, p.Attacking.Point+action.Value)
 	case "caught":
-		p.Attacking.Caught += action.Value
+		p.Attacking.Caught = max(0, p.Attacking.Caught+action.Value)
 	case "short":
-		p.Attacking.Short += action.Value
+		p.Attacking.Short = max(0, p.Attacking.Short+action.Value)
 	case "mistake":
-		p.Attacking.Mistake += action.Value
+		p.Attacking.Mistake = max(0, p.Attacking.Mistake+action.Value)
 	case "1st":
-		p.Defending.FirstLine += action.Value
+		p.Defending.FirstLine = max(0, p.Defending.FirstLine+action.Value)
 	case "2nd":
-		p.Defending.SecondLine += action.Value
+		p.Defending.SecondLine = max(0, p.Defending.SecondLine+action.Value)
 	case "drop":
-		p.Defending.Drop += action.Value
+		p.Defending.Drop = max(0, p.Defending.Drop+action.Value)
 	case "gap":
-		p.Defending.Gap += action.Value
+		p.Defending.Gap = max(0, p.Defending.Gap+action.Value)
 	}
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
