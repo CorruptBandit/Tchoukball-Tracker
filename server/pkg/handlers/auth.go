@@ -38,7 +38,7 @@ func login(c *gin.Context) {
 	// Find user by username
 	result, err := database.FindByName(c.Request.Context(), &models.User{}, loginRequest.Username)
 	if err != nil {
-		c.JSON(http.StatusNotFound, models.HTTPError{Code: http.StatusNotFound, Message: "Failed to find username"})
+		c.JSON(http.StatusNotFound, models.HTTPError{Code: http.StatusNotFound, Message: "Invalid username or password"})
 		return
 	}
 
