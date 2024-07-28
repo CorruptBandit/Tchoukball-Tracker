@@ -90,7 +90,6 @@ const MatchView = () => {
 
 
   const matchData = useMatchData(match);
-  console.log(matchData);
   return (
     <>
       <CssBaseline />

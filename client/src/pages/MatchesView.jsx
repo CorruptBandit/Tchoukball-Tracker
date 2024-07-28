@@ -132,7 +132,7 @@ const MatchesView = () => {
                   <Grid item xs={12}>
                     <Button
                       component={RouterLink}
-                      to={`/match/${match.id}/overview`}
+                      to={`/match/${match.id}`}
                       variant="contained"
                       fullWidth
                       sx={{ py: 1 }}
