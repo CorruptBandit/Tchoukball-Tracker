@@ -22,7 +22,7 @@ docker compose up
 
 ## Prod
 
-This is a work in progreess, but TLS is enabled acrossed the board.
+In production TLS is enabled acrossed the board.
 
 **Build:**
 ```sh
