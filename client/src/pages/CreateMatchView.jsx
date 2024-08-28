@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   Typography,
@@ -8,17 +8,55 @@ import {
   Container,
   Box,
   Chip,
-  Autocomplete
+  Autocomplete,
 } from "@mui/material";
-import { addNewMatch } from "../store/slices/matchesSlice";
+import {
+  addNewMatch,
+  selectAllMatches,
+  fetchMatches,
+} from "../store/slices/matchesSlice";
+import {
+  fetchPlayersForMatch,
+  selectPlayersFromMatch
+} from "../store/slices/spreadsheetsSlice";
 
 const CreateMatchView = () => {
   const [matchName, setMatchName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [playerInput, setPlayerInput] = useState("");
   const [players, setPlayers] = useState([]);
+  const [selectedMatch, setSelectedMatch] = useState(null);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const matches = useSelector(selectAllMatches);
+  const playersFromMatch = useSelector((state) => selectPlayersFromMatch(state, selectedMatch?.name || ''));
+
+  useEffect(() => {
+    console.log("Fetching matches...");
+    dispatch(fetchMatches());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (selectedMatch) {
+      console.log("Selected match:", selectedMatch);
+
+      // Fetch players for all thirds of the selected match
+      const ids = [
+        selectedMatch.firstThirdId,
+        selectedMatch.secondThirdId,
+        selectedMatch.thirdThirdId,
+      ];
+
+      console.log("Fetching players from IDs:", ids);
+      dispatch(fetchPlayersForMatch(ids));
+    }
+  }, [selectedMatch, dispatch]);
+
+  useEffect(() => {
+    console.log("Players from selected match:", playersFromMatch);
+    setPlayers(playersFromMatch.map(player => player.name));
+  }, [playersFromMatch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,7 +84,6 @@ const CreateMatchView = () => {
       setErrorMessage("Please provide a name for the match");
       return false;
     }
-
     setErrorMessage("");
     return true;
   };
@@ -56,7 +93,13 @@ const CreateMatchView = () => {
   };
 
   const handlePlayerChange = (event, newPlayers) => {
+    console.log("Players after change:", newPlayers);
     setPlayers(newPlayers);
+  };
+
+  const handleMatchSelection = (event, newSelectedMatch) => {
+    console.log("Match selected:", newSelectedMatch);
+    setSelectedMatch(newSelectedMatch);
   };
 
   return (
@@ -74,17 +117,41 @@ const CreateMatchView = () => {
           required
           sx={{ mb: 2 }}
         />
+
+        {/* Autocomplete for selecting an existing match to copy players from */}
+        <Autocomplete
+          options={matches}
+          getOptionLabel={(option) => option.name}
+          value={selectedMatch}
+          onChange={handleMatchSelection}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              variant="outlined"
+              label="Copy Players From Existing Match"
+              placeholder="Select a match"
+              sx={{ mb: 2 }}
+            />
+          )}
+        />
+
+        {/* Autocomplete for adding players */}
         <Autocomplete
           multiple
           freeSolo
-          options={[]}
+          options={players}
           value={players}
           inputValue={playerInput}
           onInputChange={handlePlayerInputChange}
           onChange={handlePlayerChange}
           renderTags={(value, getTagProps) =>
             value.map((option, index) => (
-              <Chip key={option} variant="outlined" label={option} {...getTagProps({ index })} />
+              <Chip
+                key={option} // Ensure `key` is assigned directly here
+                variant="outlined"
+                label={option}
+                {...getTagProps({ index })} // Make sure `key` is not part of the spread props
+              />
             ))
           }
           renderInput={(params) => (
@@ -96,6 +163,7 @@ const CreateMatchView = () => {
             />
           )}
         />
+
         <Button
           type="submit"
           variant="contained"

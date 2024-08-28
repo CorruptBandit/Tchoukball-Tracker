@@ -130,4 +130,3 @@ import {
     [selectAllMatches, (state, name) => name],
     (matches, name) => matches.find((match) => match.name === name)
   );
-  
