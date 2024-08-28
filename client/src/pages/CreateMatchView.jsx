@@ -32,39 +32,30 @@ const CreateMatchView = () => {
   const playersFromMatch = useSelector((state) => state.spreadsheets.playerNames || []);
 
   useEffect(() => {
-    console.log("Fetching matches...");
     dispatch(fetchMatches());
   }, [dispatch]);
 
   useEffect(() => {
     if (selectedMatch && selectedMatch.thirds) {
-      console.log("Selected match:", selectedMatch);
-
-      // Fetch players for all thirds of the selected match
       const ids = [
         selectedMatch.thirds.first,
         selectedMatch.thirds.second,
         selectedMatch.thirds.third
       ];
-
-      console.log("Fetching players from IDs:", ids);
       dispatch(fetchPlayersForMatch(ids));
     }
   }, [selectedMatch, dispatch]);
 
   useEffect(() => {
     if (playersFromMatch.length > 0) {
-      // Extract only the player names
-      const playerNames = playersFromMatch.map(player => player.name);
-      console.log("Aggregated player names:", playerNames);
-      setPlayers(playerNames);
+      const playerNames = playersFromMatch.map(player => player.name || "").filter(name => name.trim() !== "");
+      setPlayers(prevPlayers => [...new Set([...prevPlayers, ...playerNames])]);
     }
   }, [playersFromMatch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (checkValid()) {
-      console.log("Submitting match with name:", matchName, "and players:", players);
       await dispatch(addNewMatch({ name: matchName, players }))
         .unwrap()
         .then((response) => {
@@ -74,7 +65,6 @@ const CreateMatchView = () => {
           }
         })
         .catch((error) => {
-          console.error("Error creating match:", error);
           if (error.status === 409) {
             setErrorMessage("The provided match already exists");
           } else {
@@ -94,18 +84,18 @@ const CreateMatchView = () => {
   };
 
   const handlePlayerInputChange = (event, newInputValue) => {
-    console.log("Player input change:", newInputValue);
     setPlayerInput(newInputValue);
   };
 
   const handlePlayerChange = (event, newPlayers) => {
-    console.log("Players after change:", newPlayers);
-    // Update players state with new player names
-    setPlayers(newPlayers.map(player => player.name));
+    // Ensure player names are correctly extracted and trimmed
+    const updatedPlayers = newPlayers
+      .map(player => (typeof player === 'string' ? player.trim() : player.name ? player.name.trim() : ""))
+      .filter(name => name.length > 0);
+    setPlayers(updatedPlayers);
   };
 
   const handleMatchSelection = (event, newSelectedMatch) => {
-    console.log("Match selected:", newSelectedMatch);
     setSelectedMatch(newSelectedMatch);
   };
 
