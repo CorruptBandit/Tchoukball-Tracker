@@ -16,92 +16,129 @@ const initialState = spreadsheetAdapter.getInitialState({
 export const fetchSpreadsheets = createAsyncThunk(
   "spreadsheets/fetchSpreadsheets",
   async () => {
-    const response = await trackerAPI.fetch("/api/spreadsheets", null);
-    return response.json();
+    try {
+      const response = await trackerAPI.fetch("/api/spreadsheets", null);
+      return await response.json();
+    } catch (error) {
+      console.error("Failed to fetch spreadsheets:", error);
+      throw error;
+    }
   }
 );
 
 export const fetchSpreadsheetById = createAsyncThunk(
   "spreadsheets/fetchSpreadsheetsById",
   async (id) => {
-    const response = await trackerAPI.fetch(`/api/spreadsheets/${id}`, null);
-    return response.json();
+    try {
+      const response = await trackerAPI.fetch(`/api/spreadsheets/${id}`, null);
+      return await response.json();
+    } catch (error) {
+      console.error("Failed to fetch spreadsheet by ID:", error);
+      throw error;
+    }
   }
 );
 
 export const deleteSpreadsheet = createAsyncThunk(
   "spreadsheets/deleteSpreadsheet",
   async (id) => {
-    const response = await trackerAPI.delete(`/api/spreadsheets/${id}`, null);
-    return response.json();
+    try {
+      const response = await trackerAPI.delete(`/api/spreadsheets/${id}`, null);
+      return await response.json();
+    } catch (error) {
+      console.error("Failed to delete spreadsheet:", error);
+      throw error;
+    }
   }
 );
 
 export const updateSpreadsheet = createAsyncThunk(
   "spreadsheets/updateSpreadsheet",
   async (payload) => {
-    const response = await trackerAPI.put(`/api/spreadsheets/${payload.id}`, {
-      name: payload.name,
-      path: payload.path,
-    });
-    return response.json();
+    try {
+      const response = await trackerAPI.put(`/api/spreadsheets/${payload.id}`, {
+        name: payload.name,
+        path: payload.path,
+      });
+      return await response.json();
+    } catch (error) {
+      console.error("Failed to update spreadsheet:", error);
+      throw error;
+    }
   }
 );
 
 export const addNewSpreadsheet = createAsyncThunk(
   "spreadsheets/addNewSpreadsheet",
   async (payload) => {
-    const response = await trackerAPI.post("/api/spreadsheets", {
-      name: payload.name,
-      path: payload.path,
-    });
-    return response.json();
+    try {
+      const response = await trackerAPI.post("/api/spreadsheets", {
+        name: payload.name,
+        path: payload.path,
+      });
+      return await response.json();
+    } catch (error) {
+      console.error("Failed to add new spreadsheet:", error);
+      throw error;
+    }
   }
 );
 
 export const addNewPlayer = createAsyncThunk(
   "spreadsheets/addNewPlayer",
   async (payload) => {
-    const response = await trackerAPI.post(
-      `/api/spreadsheets/${payload.id}/player`,
-      {
-        name: payload.name,
-      }
-    );
-
-    const data = await response.json();
-    return { spreadsheet: payload.id, data: data };
+    try {
+      const response = await trackerAPI.post(
+        `/api/spreadsheets/${payload.id}/player`,
+        {
+          name: payload.name,
+        }
+      );
+      const data = await response.json();
+      return { spreadsheet: payload.id, data: data };
+    } catch (error) {
+      console.error("Failed to add new player:", error);
+      throw error;
+    }
   }
 );
 
 export const removePlayer = createAsyncThunk(
   "spreadsheets/removePlayer",
   async (payload) => {
-    const response = await trackerAPI.delete(
-      `/api/spreadsheets/${payload.id}/player`,
-      {
-        name: payload.name,
-      }
-    );
-
-    const data = await response.json();
-    return { spreadsheet: payload.id, data: data };
+    try {
+      const response = await trackerAPI.delete(
+        `/api/spreadsheets/${payload.id}/player`,
+        {
+          name: payload.name,
+        }
+      );
+      const data = await response.json();
+      return { spreadsheet: payload.id, data: data };
+    } catch (error) {
+      console.error("Failed to remove player:", error);
+      throw error;
+    }
   }
 );
 
 export const addNewPlayerAction = createAsyncThunk(
   "spreadsheets/addNewPlayerAction",
   async (payload) => {
-    const response = await trackerAPI.post(
-      `/api/spreadsheets/${payload.id}/player/${payload.player}/action`,
-      {
-        type: payload.action,
-        value: payload.value,
-      }
-    );
-
-    const data = await response.json();
-    return { spreadsheet: payload.id, player: payload.player, data: data };
+    try {
+      const response = await trackerAPI.post(
+        `/api/spreadsheets/${payload.id}/player/${payload.player}/action`,
+        {
+          type: payload.action,
+          value: payload.value,
+        }
+      );
+      const data = await response.json();
+      return { spreadsheet: payload.id, player: payload.player, data: data };
+    } catch (error) {
+      console.error("Failed to add new player action:", error);
+      throw error;
+    }
   }
 );
 
@@ -126,8 +163,11 @@ export const fetchPlayersForMatch = createAsyncThunk(
         if (spreadsheet.players) {
           console.log(`Spreadsheet ID ${spreadsheet.id} players:`, spreadsheet.players);
           spreadsheet.players.forEach(player => {
-            if (!names.includes(player.name)) {
-              names.push(player.name);
+            if (player.name) {
+              const trimmedName = player.name.trim();
+              if (trimmedName && !names.includes(trimmedName)) {
+                names.push(trimmedName);
+              }
             }
           });
         } else {
@@ -145,9 +185,6 @@ export const fetchPlayersForMatch = createAsyncThunk(
     }
   }
 );
-
-
-
 
 export const spreadsheetsSlice = createSlice({
   name: "spreadsheets",
@@ -183,14 +220,14 @@ export const spreadsheetsSlice = createSlice({
         spreadsheetAdapter.addOne(state, action.payload);
       })
       .addCase(addNewPlayer.fulfilled, (state, action) => {
-        const {spreadsheet, data} = action.payload;
+        const { spreadsheet, data } = action.payload;
         spreadsheetAdapter.updateOne(state, {
           id: spreadsheet,
           changes: data,
         });
       })
       .addCase(removePlayer.fulfilled, (state, action) => {
-        const {spreadsheet, data} = action.payload;
+        const { spreadsheet, data } = action.payload;
         spreadsheetAdapter.updateOne(state, {
           id: spreadsheet,
           changes: data,
@@ -202,6 +239,7 @@ export const spreadsheetsSlice = createSlice({
         state.entities[spreadsheet].players[playerIndex] = data;
       })
       .addCase(fetchPlayersForMatch.fulfilled, (state, action) => {
+        console.log("Updating state.players with:", action.payload);
         state.players = action.payload;
       });
   },
@@ -251,7 +289,8 @@ export const selectPlayersFromMatch = createSelector(
       }
     });
     // Convert Set to array
-    return Array.from(playersSet);
+    const playerNamesArray = Array.from(playersSet);
+    console.log("Players selected by match:", playerNamesArray);
+    return playerNamesArray;
   }
 );
-
