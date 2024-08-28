@@ -10,7 +10,7 @@ const spreadsheetAdapter = createEntityAdapter();
 const initialState = spreadsheetAdapter.getInitialState({
   status: "idle",
   error: null,
-  players: [],
+  players: [],  // Array to store player names directly
 });
 
 export const fetchSpreadsheets = createAsyncThunk(
@@ -240,7 +240,7 @@ export const spreadsheetsSlice = createSlice({
       })
       .addCase(fetchPlayersForMatch.fulfilled, (state, action) => {
         console.log("Updating state.players with:", action.payload);
-        state.players = action.payload;
+        state.players = action.payload; // Storing player names directly
       });
   },
 });
@@ -255,7 +255,7 @@ export const {
 } = spreadsheetAdapter.getSelectors((state) => state.spreadsheets);
 
 export const selectSpreadsheetNames = createSelector(
-  [selectAllSpreadsheets, (state) => state],
+  [selectAllSpreadsheets],
   (spreadsheets) => {
     return spreadsheets.map((spreadsheet) => spreadsheet.name);
   }
