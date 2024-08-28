@@ -108,22 +108,46 @@ export const addNewPlayerAction = createAsyncThunk(
 export const fetchPlayersForMatch = createAsyncThunk(
   "spreadsheets/fetchPlayersForMatch",
   async (ids) => {
-    const responses = await Promise.all(
-      ids.map(id => trackerAPI.fetch(`/api/spreadsheets/${id}`, null))
-    );
-    const data = await Promise.all(responses.map(res => res.json()));
-    
-    // Flatten players from all thirds into a single array
-    const allPlayers = data.reduce((players, spreadsheet) => {
-      if (spreadsheet.players) {
-        players.push(...spreadsheet.players);
-      }
-      return players;
-    }, []);
-    
-    return allPlayers;
+    if (!ids || ids.length === 0) return [];
+
+    try {
+      // Fetch data for each ID
+      const responses = await Promise.all(
+        ids.map((id) => trackerAPI.fetch(`/api/spreadsheets/${id}`, null))
+      );
+
+      // Extract JSON from each response
+      const data = await Promise.all(responses.map((res) => res.json()));
+
+      console.log("Fetched data for all IDs:", data);
+
+      // Extract player names from all spreadsheets and deduplicate
+      const playerNames = data.reduce((names, spreadsheet) => {
+        if (spreadsheet.players) {
+          console.log(`Spreadsheet ID ${spreadsheet.id} players:`, spreadsheet.players);
+          spreadsheet.players.forEach(player => {
+            if (!names.includes(player.name)) {
+              names.push(player.name);
+            }
+          });
+        } else {
+          console.log(`Spreadsheet ID ${spreadsheet.id} has no players.`);
+        }
+        return names;
+      }, []);
+
+      console.log("Aggregated player names:", playerNames);
+
+      return playerNames;
+    } catch (error) {
+      console.error("Failed to fetch players:", error);
+      throw error;
+    }
   }
 );
+
+
+
 
 export const spreadsheetsSlice = createSlice({
   name: "spreadsheets",
@@ -217,12 +241,17 @@ export const selectMatchSpreadsheetNames = createSelector(
   }
 );
 
-// Selector to get players from all thirds of a selected match
 export const selectPlayersFromMatch = createSelector(
-  [(state) => state.spreadsheets.players, (state, matchName) => matchName],
-  (players, matchName) => {
-    return players.filter(player =>
-      player.matchName === matchName // Adjust this condition based on your actual data structure
-    );
+  [selectAllSpreadsheets, (state, matchName) => matchName],
+  (spreadsheets, matchName) => {
+    const playersSet = new Set();
+    spreadsheets.forEach(spreadsheet => {
+      if (spreadsheet.name.startsWith(matchName) && spreadsheet.players) {
+        spreadsheet.players.forEach(player => playersSet.add(player.name));
+      }
+    });
+    // Convert Set to array
+    return Array.from(playersSet);
   }
 );
+

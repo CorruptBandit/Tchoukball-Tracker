@@ -17,7 +17,6 @@ import {
 } from "../store/slices/matchesSlice";
 import {
   fetchPlayersForMatch,
-  selectPlayersFromMatch
 } from "../store/slices/spreadsheetsSlice";
 
 const CreateMatchView = () => {
@@ -30,7 +29,7 @@ const CreateMatchView = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const matches = useSelector(selectAllMatches);
-  const playersFromMatch = useSelector((state) => selectPlayersFromMatch(state, selectedMatch?.name || ''));
+  const playersFromMatch = useSelector((state) => state.spreadsheets.playerNames || []);
 
   useEffect(() => {
     console.log("Fetching matches...");
@@ -38,14 +37,14 @@ const CreateMatchView = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (selectedMatch) {
+    if (selectedMatch && selectedMatch.thirds) {
       console.log("Selected match:", selectedMatch);
 
       // Fetch players for all thirds of the selected match
       const ids = [
-        selectedMatch.firstThirdId,
-        selectedMatch.secondThirdId,
-        selectedMatch.thirdThirdId,
+        selectedMatch.thirds.first,
+        selectedMatch.thirds.second,
+        selectedMatch.thirds.third
       ];
 
       console.log("Fetching players from IDs:", ids);
@@ -54,13 +53,18 @@ const CreateMatchView = () => {
   }, [selectedMatch, dispatch]);
 
   useEffect(() => {
-    console.log("Players from selected match:", playersFromMatch);
-    setPlayers(playersFromMatch.map(player => player.name));
+    if (playersFromMatch.length > 0) {
+      // Extract only the player names
+      const playerNames = playersFromMatch.map(player => player.name);
+      console.log("Aggregated player names:", playerNames);
+      setPlayers(playerNames);
+    }
   }, [playersFromMatch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (checkValid()) {
+      console.log("Submitting match with name:", matchName, "and players:", players);
       await dispatch(addNewMatch({ name: matchName, players }))
         .unwrap()
         .then((response) => {
@@ -70,6 +74,7 @@ const CreateMatchView = () => {
           }
         })
         .catch((error) => {
+          console.error("Error creating match:", error);
           if (error.status === 409) {
             setErrorMessage("The provided match already exists");
           } else {
@@ -89,12 +94,14 @@ const CreateMatchView = () => {
   };
 
   const handlePlayerInputChange = (event, newInputValue) => {
+    console.log("Player input change:", newInputValue);
     setPlayerInput(newInputValue);
   };
 
   const handlePlayerChange = (event, newPlayers) => {
     console.log("Players after change:", newPlayers);
-    setPlayers(newPlayers);
+    // Update players state with new player names
+    setPlayers(newPlayers.map(player => player.name));
   };
 
   const handleMatchSelection = (event, newSelectedMatch) => {
@@ -139,18 +146,18 @@ const CreateMatchView = () => {
         <Autocomplete
           multiple
           freeSolo
-          options={players}
-          value={players}
+          options={players.map(player => ({ name: player }))}
+          value={players.map(player => ({ name: player }))}
           inputValue={playerInput}
           onInputChange={handlePlayerInputChange}
           onChange={handlePlayerChange}
           renderTags={(value, getTagProps) =>
             value.map((option, index) => (
               <Chip
-                key={option} // Ensure `key` is assigned directly here
+                key={option.name} // Ensure `key` is assigned based on `name`
                 variant="outlined"
-                label={option}
-                {...getTagProps({ index })} // Make sure `key` is not part of the spread props
+                label={option.name}
+                {...getTagProps({ index })}
               />
             ))
           }
