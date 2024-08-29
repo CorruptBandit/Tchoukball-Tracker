@@ -21,11 +21,16 @@ const actions = [
   "Point",
   "Caught",
   "Short",
-  "Mistake",
+  "Frame",
+  "Footing",
+  "Landed",
+  "Bad Pass",
+  "Drop pass",
   "1st",
   "2nd",
   "Drop",
   "Gap",
+  "Dig",
 ];
 
 function TrackerView() {
