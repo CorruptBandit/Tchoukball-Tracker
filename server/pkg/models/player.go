@@ -44,9 +44,9 @@ func (p *Player) AddAction(action PlayerAction) {
 		p.Attacking.Footing = max(0, p.Attacking.Footing+action.Value)
 	case "landed":
 		p.Attacking.Landed = max(0, p.Attacking.Landed+action.Value)
-	case "badPass":
+	case "bad pass":
 		p.Attacking.BadPass = max(0, p.Attacking.BadPass+action.Value)
-	case "dropPass":
+	case "drop pass":
 		p.Attacking.DropPass = max(0, p.Attacking.DropPass+action.Value)
 	case "1st":
 		p.Defending.FirstLine = max(0, p.Defending.FirstLine+action.Value)
