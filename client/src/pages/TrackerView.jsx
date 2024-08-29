@@ -114,6 +114,10 @@ function TrackerView() {
     setRemovePointsMode((prevMode) => !prevMode);
   };
 
+  const goToMatchOverview = () => {
+    navigate(`/match/${matchId}`);
+  };
+
   return (
     <>
       <CssBaseline />
@@ -148,6 +152,12 @@ function TrackerView() {
                 onClick={() => navigateThird(-1)}
               >
                 Previous Third
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={goToMatchOverview}
+              >
+                Match Overview
               </Button>
               <Button
                 variant="outlined"

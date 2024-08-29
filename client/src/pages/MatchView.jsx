@@ -74,7 +74,7 @@ const MatchView = () => {
         if (!players[player.name]) {
           players[player.name] = {
             name: player.name,
-            attacking: { point: 0, caught: 0, short: 0, frame: 0, footing: 0, landing: 0, badPass: 0, dropPass:0 },
+            attacking: { point: 0, caught: 0, short: 0, frame: 0, footing: 0, landed: 0, badPass: 0, dropPass:0 },
             defending: { first: 0, second: 0, drop: 0, gap: 0, dig: 0 },
           };
         }
