@@ -18,8 +18,8 @@ type Attacking struct {
 	Frame    int `json:"frame" bson:"frame"`
 	Footing  int `json:"footing" bson:"footing"`
 	Landed   int `json:"landed" bson:"landed"`
-	badPass  int `json:"badPass" bson:"badPass"`
-	dropPass int `json:"dropPass" bson:"dropPass"`
+	BadPass  int `json:"badPass" bson:"badPass"`
+	DropPass int `json:"dropPass" bson:"dropPass"`
 }
 
 type Defending struct {
@@ -45,9 +45,9 @@ func (p *Player) AddAction(action PlayerAction) {
 	case "landed":
 		p.Attacking.Landed = max(0, p.Attacking.Landed+action.Value)
 	case "badPass":
-		p.Attacking.badPass = max(0, p.Attacking.badPass+action.Value)
+		p.Attacking.BadPass = max(0, p.Attacking.BadPass+action.Value)
 	case "dropPass":
-		p.Attacking.dropPass = max(0, p.Attacking.dropPass+action.Value)
+		p.Attacking.DropPass = max(0, p.Attacking.DropPass+action.Value)
 	case "1st":
 		p.Defending.FirstLine = max(0, p.Defending.FirstLine+action.Value)
 	case "2nd":
