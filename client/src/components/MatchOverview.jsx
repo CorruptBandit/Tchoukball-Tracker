@@ -83,6 +83,8 @@ const MatchOverview = ({ matchData }) => {
                           {stat.split('_')[1].toLocaleUpperCase()}
                         </TableCell>
                       ))}
+                      <TableCell align="right">ATTACK %</TableCell> {/* New Column */}
+                      <TableCell align="right">DEFEND %</TableCell> {/* New Column */}
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -99,6 +101,12 @@ const MatchOverview = ({ matchData }) => {
                             </TableCell>
                           );
                         })}
+                        <TableCell align="right">
+                          {player.attackingPercentage.toFixed(2)}%
+                        </TableCell> {/* Display Attack % */}
+                        <TableCell align="right">
+                          {player.defendingPercentage.toFixed(2)}%
+                        </TableCell> {/* Display Defend % */}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -119,6 +127,8 @@ MatchOverview.propTypes = {
       name: PropTypes.string.isRequired,
       attacking: PropTypes.object.isRequired,
       defending: PropTypes.object.isRequired,
+      attackingPercentage: PropTypes.number.isRequired, // Ensure these are in the shape
+      defendingPercentage: PropTypes.number.isRequired, // Ensure these are in the shape
     }))
   })
 };
