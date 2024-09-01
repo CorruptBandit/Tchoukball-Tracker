@@ -16,22 +16,7 @@ import {
 import ActionButtonGrid from "../components/ActionButtonGrid";
 import Spreadsheet from "../components/Spreadsheet";
 import PlayerMenu from "../menus/PlayerMenu";
-
-const actions = [
-  "Point",
-  "Caught",
-  "Short",
-  "Frame",
-  "Footing",
-  "Landed",
-  "Bad Pass",
-  "Drop pass",
-  "1st",
-  "2nd",
-  "Drop",
-  "Gap",
-  "Dig",
-];
+import PlayerButtons from "../components/PlayerButtons";
 
 function TrackerView() {
   const dispatch = useDispatch();
@@ -183,7 +168,7 @@ function TrackerView() {
         {selectedPlayer && (
           <Card sx={{ mt: 4, p: 3, width: "100%", position: "relative" }}>
             <Typography variant="h5" gutterBottom align="center">
-              Action for: {selectedPlayer}
+              {removePointsMode ? "Remove" : "Add" } Action for: {selectedPlayer}
             </Typography>
             <FormControlLabel
               labelPlacement="start"
@@ -194,11 +179,10 @@ function TrackerView() {
                   color="primary"
                 />
               }
-              label={removePointsMode ? "Remove" : "Add"}
+              label={removePointsMode ? "Toggle Add" : "Toggle Remove"}
               sx={{ position: "absolute", top: 16, right: 16 }}
             />
-            <ActionButtonGrid
-              buttons={actions}
+            <PlayerButtons
               onClick={addAction}
               removePointsMode={removePointsMode}
             />

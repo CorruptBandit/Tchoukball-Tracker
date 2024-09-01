@@ -43,7 +43,50 @@ const MatchOverview = ({ matchData }) => {
           No Data Found
         </Typography>
       ) : (
-        <Grid container spacing={4}>
+        <div>
+          {matchData.players && matchData.players.length > 0 ? (
+            <Grid item xs={14} sx={{pb: 3}}>
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>PLAYER</TableCell>
+                      <TableCell align="right">ATTACK %</TableCell> {/* New Column */}
+                      <TableCell align="right">DEFEND %</TableCell> {/* New Column */}
+                      {Object.keys(playerStats).map(stat => (
+                        <TableCell key={stat} align="right">
+                          {stat.split('_')[1].toLocaleUpperCase()}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {matchData.players.map(player => (
+                      <TableRow key={player.name}>
+                        <TableCell component="th" scope="row">
+                          {player.name}
+                        </TableCell>
+                        <TableCell align="right">
+                          {player.attackingPercentage.toFixed(2)}%
+                        </TableCell> {/* Display Attack % */}
+                        <TableCell align="right">
+                          {player.defendingPercentage.toFixed(2)}%
+                        </TableCell> {/* Display Defend % */}
+                        {Object.keys(playerStats).map(stat => {
+                          const [category, substat] = stat.split('_');
+                          return (
+                            <TableCell key={stat} align="right">
+                              {player[category][substat]}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Grid>
+          ) : null}
           <Grid item xs={12}>
             <Paper elevation={3} sx={{ p: 3 }}>
               <Typography variant="h5" gutterBottom>
@@ -69,52 +112,7 @@ const MatchOverview = ({ matchData }) => {
               </Grid>
             </Paper>
           </Grid>
-
-          {/* Player Detailed Stats */}
-          {matchData.players && matchData.players.length > 0 ? (
-            <Grid item xs={12}>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>PLAYER</TableCell>
-                      {Object.keys(playerStats).map(stat => (
-                        <TableCell key={stat} align="right">
-                          {stat.split('_')[1].toLocaleUpperCase()}
-                        </TableCell>
-                      ))}
-                      <TableCell align="right">ATTACK %</TableCell> {/* New Column */}
-                      <TableCell align="right">DEFEND %</TableCell> {/* New Column */}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {matchData.players.map(player => (
-                      <TableRow key={player.name}>
-                        <TableCell component="th" scope="row">
-                          {player.name}
-                        </TableCell>
-                        {Object.keys(playerStats).map(stat => {
-                          const [category, substat] = stat.split('_');
-                          return (
-                            <TableCell key={stat} align="right">
-                              {player[category][substat]}
-                            </TableCell>
-                          );
-                        })}
-                        <TableCell align="right">
-                          {player.attackingPercentage.toFixed(2)}%
-                        </TableCell> {/* Display Attack % */}
-                        <TableCell align="right">
-                          {player.defendingPercentage.toFixed(2)}%
-                        </TableCell> {/* Display Defend % */}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
-          ) : null}
-        </Grid>
+        </div>
       )}
     </Container>
   );
