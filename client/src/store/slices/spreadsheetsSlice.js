@@ -148,35 +148,22 @@ export const fetchPlayersForMatch = createAsyncThunk(
     if (!ids || ids.length === 0) return [];
 
     try {
-      // Fetch data for each ID
       const responses = await Promise.all(
         ids.map((id) => trackerAPI.fetch(`/api/spreadsheets/${id}`, null))
       );
-
-      // Extract JSON from each response
       const data = await Promise.all(responses.map((res) => res.json()));
 
-      console.log("Fetched data for all IDs:", data);
-
-      // Extract player names from all spreadsheets and deduplicate
       const playerNames = data.reduce((names, spreadsheet) => {
         if (spreadsheet.players) {
-          console.log(`Spreadsheet ID ${spreadsheet.id} players:`, spreadsheet.players);
           spreadsheet.players.forEach(player => {
-            if (player.name) {
-              const trimmedName = player.name.trim();
-              if (trimmedName && !names.includes(trimmedName)) {
-                names.push(trimmedName);
-              }
+            const trimmedName = player.name.trim();
+            if (trimmedName && !names.includes(trimmedName)) {
+              names.push(trimmedName);
             }
           });
-        } else {
-          console.log(`Spreadsheet ID ${spreadsheet.id} has no players.`);
         }
         return names;
       }, []);
-
-      console.log("Aggregated player names:", playerNames);
 
       return playerNames;
     } catch (error) {
@@ -189,7 +176,10 @@ export const fetchPlayersForMatch = createAsyncThunk(
 export const spreadsheetsSlice = createSlice({
   name: "spreadsheets",
   initialState,
-  reducers: {},
+  reducers: {
+    clearPlayers: (state) => {
+    state.players = []; // Action to clear players
+  },},
   extraReducers(builder) {
     builder
       .addCase(fetchSpreadsheets.pending, (state) => {
@@ -239,13 +229,15 @@ export const spreadsheetsSlice = createSlice({
         state.entities[spreadsheet].players[playerIndex] = data;
       })
       .addCase(fetchPlayersForMatch.fulfilled, (state, action) => {
-        console.log("Updating state.players with:", action.payload);
-        state.players = action.payload; // Storing player names directly
+        state.players = action.payload; // Update player names directly
       });
   },
 });
 
 export const spreadsheetsActions = spreadsheetsSlice.actions;
+export const { clearPlayers } = spreadsheetsSlice.actions;
+// Selector to get players from state
+export const selectPlayersFromMatch = (state) => state.spreadsheets.players;
 export default spreadsheetsSlice.reducer;
 
 export const {
@@ -276,21 +268,5 @@ export const selectMatchSpreadsheetNames = createSelector(
       uniqueNames.add(matchName);
     });
     return Array.from(uniqueNames);
-  }
-);
-
-export const selectPlayersFromMatch = createSelector(
-  [selectAllSpreadsheets, (state, matchName) => matchName],
-  (spreadsheets, matchName) => {
-    const playersSet = new Set();
-    spreadsheets.forEach(spreadsheet => {
-      if (spreadsheet.name.startsWith(matchName) && spreadsheet.players) {
-        spreadsheet.players.forEach(player => playersSet.add(player.name));
-      }
-    });
-    // Convert Set to array
-    const playerNamesArray = Array.from(playersSet);
-    console.log("Players selected by match:", playerNamesArray);
-    return playerNamesArray;
   }
 );
