@@ -1,39 +1,74 @@
-# Tchoukball-Tracker
+# Tchoukball Tracker
 
-Application to track statistics.
+A web application to track and manage Tchoukball statistics.
+
+## Prerequisites
+
+- **Certificates:** Required for secure connections. Please contact the developers to obtain them.
+- **Node.js & npm:** Required for running the frontend locally.
+- **Go:** Required for running the backend locally.
+- **Docker & Docker Compose:** Optional but recommended for running the entire application in a containerized environment.
 
 ## Running the Application
 
-There are two options, run with local node and go or run within docker.
+### Option 1: Run Locally
 
-Certificates are required. Please contact the developers for these.
+This option allows you to run the application on your local machine without using Docker for the Frontend and Backend.
 
-**Run Locally:**
-1. MongoDB: `docker compose up mongodb`
-1. Backend: `(cd server && go run main.go)`
-1. Frontend: `npm start`
+1. **MongoDB:** 
+   - Start MongoDB using Docker:
+     ```sh
+     docker compose up mongodb
+     ```
+   - Alternatively, you can run MongoDB package or use MongoDB Atlas to avoid using Docker entirely.
+   
+2. **Backend:**
+   - Navigate to the `server` directory:
+     ```sh
+     cd server
+     ```
+   - Start the Go backend:
+     ```sh
+     go run main.go
+     ```
+   
+3. **Frontend:**
+   - Start the frontend:
+     ```sh
+     npm start
+     ```
 
-_To avoid using Docker entirely, Mongo can be run on your local machine or on Mongo Atlas_
+4. **Database Setup:**
+   - Ensure the required users are set up **MANUALLY** in the Tchoukball Database Users Collection.
 
-**Run using Docker:**
-```sh
-docker compose up
-```
+### Option 2: Run Using Docker
 
-## Prod
+This option allows you to run the entire application in Docker containers.
 
-In production TLS is enabled acrossed the board.
+1. **Start the Application:**
+   ```sh
+   docker compose up
+   ```
 
-**Build:**
-```sh
-sudo docker compose  -f compose.prod.yaml build
-```
+## Running in Production
 
-_--no-cache flag may be required_
+In production, TLS is enabled across the entire application to ensure secure communication.
 
-**Run:**
-```sh
-sudo docker compose -f compose.prod.yaml up
-```
+### Build and Run
 
-_Please run all commands from root of the repo_
+1. **Build the Docker Images:**
+   ```sh
+   sudo docker compose -f compose.prod.yaml build
+   ```
+
+   _Note: Use the `--no-cache` flag if you need to force rebuild the images without using the cache._
+
+2. **Run the Application:**
+   ```sh
+   sudo docker compose -f compose.prod.yaml up
+   ```
+
+### Important Notes
+
+- All commands should be run from the root directory of the repository.
+- Ensure that your certificates are properly configured for production.
