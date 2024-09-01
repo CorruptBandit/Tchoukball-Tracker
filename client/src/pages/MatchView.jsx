@@ -47,19 +47,24 @@ const MatchView = () => {
         point: existingStats.point + newStats.point,
         caught: existingStats.caught + newStats.caught,
         short: existingStats.short + newStats.short,
-        mistake: existingStats.mistake + newStats.mistake,
+        frame: existingStats.frame + newStats.frame,
+        footing: existingStats.footing + newStats.footing,
+        landed: existingStats.landed + newStats.landed,
+        badPass: existingStats.badPass + newStats.badPass,
+        dropPass: existingStats.dropPass + newStats.dropPass
       };
     };
-
+  
     const sumDefendingStats = (existingStats, newStats) => {
       return {
         first: existingStats.first + newStats.first,
         second: existingStats.second + newStats.second,
         drop: existingStats.drop + newStats.drop,
         gap: existingStats.gap + newStats.gap,
+        dig: existingStats.dig + newStats.dig
       };
     };
-      
+  
     // Aggregate data
     const players = {};
   
@@ -69,8 +74,8 @@ const MatchView = () => {
         if (!players[player.name]) {
           players[player.name] = {
             name: player.name,
-            attacking: { point: 0, caught: 0, short: 0, mistake: 0 },
-            defending: { first: 0, second: 0, drop: 0, gap: 0 },
+            attacking: { point: 0, caught: 0, short: 0, frame: 0, footing: 0, landed: 0, badPass: 0, dropPass: 0 },
+            defending: { first: 0, second: 0, drop: 0, gap: 0, dig: 0 },
           };
         }
         // Make sure existing stats are correctly referenced and updated
@@ -82,12 +87,31 @@ const MatchView = () => {
     // Process each third
     [first, second, third]?.forEach(third => processThird(third));
   
+    // Calculate attacking and defending percentages
+    Object.values(players).forEach(player => {
+      const { point, caught, short, frame, footing, landed } = player.attacking;
+      const { first, second, drop, gap, dig } = player.defending;
+  
+      // Combined attacking mistakes (sum of all non-point stats)
+      const combinedMistakes = caught + short + frame + footing + landed;
+  
+      // Attacking percentage calculation (corrected)
+      player.attackingPercentage = combinedMistakes > 0 ? (point / (combinedMistakes + point)) * 100 : 0;
+  
+      // Defending percentage calculation (corrected)
+      const defendingEfforts = first + second + dig;
+      const combinedDefenseMistakes = drop + gap;
+  
+      player.defendingPercentage = (defendingEfforts + combinedDefenseMistakes) > 0 
+        ? (defendingEfforts / (defendingEfforts + combinedDefenseMistakes)) * 100 
+        : 0;
+    });
+  
     return {
       name: match?.name || "Match Name Not Found",
       players: Object.values(players),
     };
-  };
-
+  };  
 
   const matchData = useMatchData(match);
   return (

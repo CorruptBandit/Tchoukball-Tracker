@@ -41,7 +41,8 @@ function Spreadsheet({ id, setSelected }) {
     return (
       <div>
         Points: {stats.point || 0}, Caught: {stats.caught || 0}, Short: {stats.short || 0},
-        Mistake: {stats.mistake || 0}
+        Frame: {stats.frame || 0}, Footing: {stats.footing || 0}, Landed: {stats.landed || 0},
+        Bad Pass: {stats.badPass || 0}, Drop Pass: {stats.dropPass || 0}
       </div>
     );
   };
@@ -50,7 +51,7 @@ function Spreadsheet({ id, setSelected }) {
     return (
       <div>
         1st Line: {stats.first || 0}, 2nd Line: {stats.second || 0}, Drop: {stats.drop || 0},
-        Gap: {stats.gap || 0}
+        Gap: {stats.gap || 0}, Dig: {stats.dig || 0}
       </div>
     );
   };
