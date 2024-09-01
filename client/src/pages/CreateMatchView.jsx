@@ -17,6 +17,7 @@ import {
 } from "../store/slices/matchesSlice";
 import {
   fetchPlayersForMatch,
+  clearPlayers,
   selectPlayersFromMatch,
 } from "../store/slices/spreadsheetsSlice";
 
@@ -26,14 +27,28 @@ const CreateMatchView = () => {
   const [playerInput, setPlayerInput] = useState("");
   const [players, setPlayers] = useState([]);
   const [selectedMatch, setSelectedMatch] = useState(null);
+  const [autocompleteKey, setAutocompleteKey] = useState(0);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const matches = useSelector(selectAllMatches);
-  const playersFromMatch = useSelector((state) => state.spreadsheets.players || []);
+  const playersFromMatch = useSelector(selectPlayersFromMatch);
 
   useEffect(() => {
     dispatch(fetchMatches());
+    dispatch(clearPlayers()); // Clear players when component mounts
+
+    // Reset fields
+    setMatchName("");
+    setPlayers([]);
+    setPlayerInput("");
+    setSelectedMatch(null);
+    setAutocompleteKey((prevKey) => prevKey + 1);
+    
+    // Clear players when the component unmounts
+    return () => {
+      dispatch(clearPlayers());
+    };
   }, [dispatch]);
 
   useEffect(() => {
@@ -41,17 +56,19 @@ const CreateMatchView = () => {
       const ids = [
         selectedMatch.thirds.first,
         selectedMatch.thirds.second,
-        selectedMatch.thirds.third
+        selectedMatch.thirds.third,
       ];
       dispatch(fetchPlayersForMatch(ids));
+    } else {
+      dispatch(clearPlayers()); // Clear players if no match is selected
     }
   }, [selectedMatch, dispatch]);
 
   useEffect(() => {
-    console.log("Players from match:", playersFromMatch);
     if (playersFromMatch.length > 0) {
-      const playerNames = playersFromMatch.map(name => name.trim()).filter(name => name.length > 0);
-      setPlayers(prevPlayers => [...new Set([...prevPlayers, ...playerNames])]);
+      const playerNames = playersFromMatch.map((name) => name.trim()).filter((name) => name.length > 0);
+      setPlayers(playerNames);
+      setAutocompleteKey((prevKey) => prevKey + 1);
     }
   }, [playersFromMatch]);
 
@@ -63,6 +80,12 @@ const CreateMatchView = () => {
         .then((response) => {
           if (response.id) {
             setErrorMessage("");
+            setMatchName("");
+            setPlayers([]);
+            setPlayerInput("");
+            setSelectedMatch(null);  // Clear the selected match
+            setAutocompleteKey((prevKey) => prevKey + 1);  // Force autocomplete rerender
+            dispatch(clearPlayers());  // Clear players after match creation
             navigate("/");
           }
         })
@@ -90,15 +113,20 @@ const CreateMatchView = () => {
   };
 
   const handlePlayerChange = (event, newPlayers) => {
-    // Ensure player names are correctly extracted and trimmed
     const updatedPlayers = newPlayers
-      .map(player => (typeof player === 'string' ? player.trim() : player.name ? player.name.trim() : ""))
-      .filter(name => name.length > 0);
+      .map((player) =>
+        typeof player === "string" ? player.trim() : player.name ? player.name.trim() : ""
+      )
+      .filter((name) => name.length > 0);
+
     setPlayers(updatedPlayers);
   };
 
   const handleMatchSelection = (event, newSelectedMatch) => {
     setSelectedMatch(newSelectedMatch);
+    dispatch(clearPlayers()); // Clear players when a new match is selected
+    setPlayerInput(""); 
+    setAutocompleteKey((prevKey) => prevKey + 1);
   };
 
   return (
@@ -117,7 +145,6 @@ const CreateMatchView = () => {
           sx={{ mb: 2 }}
         />
 
-        {/* Autocomplete for selecting an existing match to copy players from */}
         <Autocomplete
           options={matches}
           getOptionLabel={(option) => option.name}
@@ -134,19 +161,19 @@ const CreateMatchView = () => {
           )}
         />
 
-        {/* Autocomplete for adding players */}
         <Autocomplete
+          key={autocompleteKey}
           multiple
           freeSolo
-          options={players.map(player => ({ name: player }))}
-          value={players.map(player => ({ name: player }))}
+          options={[]}
+          value={players.map((player) => ({ name: player }))}
           inputValue={playerInput}
           onInputChange={handlePlayerInputChange}
           onChange={handlePlayerChange}
           renderTags={(value, getTagProps) =>
             value.map((option, index) => (
               <Chip
-                key={option.name} // Ensure `key` is assigned based on `name`
+                key={option.name}
                 variant="outlined"
                 label={option.name}
                 {...getTagProps({ index })}
