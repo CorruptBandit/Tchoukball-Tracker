@@ -11,8 +11,9 @@ const attackingActions = [
   "Footing",
   "Landed",
   "Bad Pass",
+  "Drop Pass"
 ];
-const defendingActions = ["Drop pass", "1st", "2nd", "Drop", "Gap", "Dig"];
+const defendingActions = ["1st", "2nd", "Drop", "Gap", "Dig"];
 
 function PlayerButtons({ onClick, removePointsMode }) {
   return (
